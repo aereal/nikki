@@ -1,3 +1,5 @@
+require 'omniauth'
+require 'omniauth-google-oauth2'
 require 'sinatra/base'
 require 'slim'
 
@@ -14,6 +16,7 @@ module Nikki
 
   class Web < ::Sinatra::Base
     enable :sessions
+    enable :logging
     set :views, File.expand_path(File.join(settings.root, '../../templates'))
 
     configure do
@@ -30,9 +33,25 @@ module Nikki
       register ::Sinatra::Reloader
     end
 
+    use OmniAuth::Builder do
+      provider :google_oauth2, ENV['GOOGLE_OAUTH_CLIENT_ID'], ENV['GOOGLE_OAUTH_CLIENT_SECRET']
+    end
+
     get '/' do
       visitor, * = [session[:visitor_id]].compact.map {|id| Nikki::Model::User.new(id) }
       slim :index, locals: { visitor: visitor }
+    end
+
+    get '/auth/:provider/callback' do
+      auth = env['omniauth.auth']
+      session[:visitor_id] = "provider:google:id:#{auth.uid}"
+      redirect '/'
+    end
+
+    post '/auth/:provider/callback' do
+      auth = env['omniauth.auth']
+      session[:visitor_id] = "provider:google:id:#{auth.uid}"
+      redirect '/'
     end
 
     get '/auth/-/logout' do
