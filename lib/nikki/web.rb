@@ -35,7 +35,10 @@ module Nikki
     get '/' do
       db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
       authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])
-      slim :index, locals: { visitor: authed_user }
+      initial_props = {
+        authedUser: authed_user.nil? ? nil : { name: authed_user.name, slug: authed_user.slug },
+      }
+      slim :index, locals: { initial_props: JSON.generate(initial_props) }
     end
 
     get '/auth/:provider/callback' do

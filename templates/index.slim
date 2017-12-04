@@ -3,19 +3,8 @@ html
   head
     meta charset="utf-8"
     title Nikki
-  body
+  body data-initial-props=initial_props
     header
       h1 Nikki
-    nav
-      ul
-        - if visitor.nil?
-          li
-            a href="/auth/google_oauth2"
-              | Sign in with Google
-        - else
-          li
-            | User:
-            | #{visitor.id}
-          li
-            a href="/auth/-/logout"
-              | Logout
+    main
+    script src="/dist/index.js"
