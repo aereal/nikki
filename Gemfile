@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'json-schema'
 gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'puma'
