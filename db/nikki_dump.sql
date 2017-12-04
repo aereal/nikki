@@ -41,7 +41,8 @@ SET default_with_oids = false;
 CREATE TABLE users (
     id bigint NOT NULL,
     name character varying(255) NOT NULL,
-    slug character varying(255) NOT NULL
+    slug character varying(255) NOT NULL,
+    auth_key character varying(255) NOT NULL
 );
 
 
@@ -69,6 +70,14 @@ ALTER SEQUENCE users_id_seq OWNED BY users.id;
 --
 
 ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regclass);
+
+
+--
+-- Name: users users_auth_key_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_auth_key_key UNIQUE (auth_key);
 
 
 --
