@@ -12,6 +12,7 @@ module Nikki
     enable :sessions
     enable :logging
     set :views, File.expand_path(File.join(settings.root, '../../templates'))
+    set :public_folder, File.expand_path(File.join(settings.root, '../../assets/'))
 
     configure do
       Slim::Engine.set_options(
