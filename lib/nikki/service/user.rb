@@ -26,11 +26,12 @@ module Nikki
       end
 
       def self.register(db: , name: , slug: , auth_key: )
-        row = db[:users].returning.insert(
+        rows = db[:users].returning.insert(
           name: name,
           slug: slug,
           auth_key: auth_key,
         )
+        row = rows.first
         Nikki::Model::User.new(**row)
       end
     end
