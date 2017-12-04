@@ -8,4 +8,7 @@ properties:
     type: 'string'
   GOOGLE_OAUTH_CLIENT_SECRET:
     type: 'string'
+required:
+  - GOOGLE_OAUTH_CLIENT_ID
+  - GOOGLE_OAUTH_CLIENT_SECRET
 additionalProperties: true
