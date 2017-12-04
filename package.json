@@ -17,5 +17,11 @@
     "url": "https://github.com/aereal/nikki/issues"
   },
   "homepage": "https://github.com/aereal/nikki#readme",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "browserify": "^14.5.0",
+    "tsify": "^3.0.3",
+    "typescript": "^2.6.2",
+    "watchify": "^3.9.0"
+  }
 }
