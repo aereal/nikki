@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
+    "compile:watch": "watchify -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file"
+  },
+  "config": {
+    "out_file": "assets/dist/index.js",
+    "main_file": "src/ts/index.tsx"
   },
   "repository": {
     "type": "git",
