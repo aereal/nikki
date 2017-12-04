@@ -1,0 +1,36 @@
+{
+  "name": "nikki",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
+    "compile:watch": "watchify -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file"
+  },
+  "config": {
+    "out_file": "assets/dist/index.js",
+    "main_file": "src/ts/index.tsx"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aereal/nikki.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/aereal/nikki/issues"
+  },
+  "homepage": "https://github.com/aereal/nikki#readme",
+  "private": true,
+  "devDependencies": {
+    "@types/react": "^16.0.26",
+    "@types/react-dom": "^16.0.3",
+    "browserify": "^14.5.0",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "tsify": "^3.0.3",
+    "typescript": "^2.6.2",
+    "watchify": "^3.9.0"
+  }
+}

@@ -21,3 +21,11 @@ services:
       DB_HOST: db
     depends_on:
       - db
+  node:
+    build:
+      context: .
+      dockerfile: node.Dockerfile
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
+    command: yarn run compile:watch
