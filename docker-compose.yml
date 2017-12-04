@@ -6,8 +6,6 @@ services:
     image: postgres
     volumes:
       - ./pg-data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: postgres
   app:
     build: .
     command: bundle exec rackup --host 0.0.0.0
