@@ -1,19 +1,13 @@
+require 'digest/sha2'
 require 'omniauth'
 require 'omniauth-google-oauth2'
+require 'sequel'
 require 'sinatra/base'
 require 'slim'
 
+require 'nikki/service/user'
+
 module Nikki
-  module Model
-    class User
-      attr_reader :id
-
-      def initialize(id)
-        @id = id
-      end
-    end
-  end
-
   class Web < ::Sinatra::Base
     enable :sessions
     enable :logging
@@ -38,19 +32,26 @@ module Nikki
     end
 
     get '/' do
-      visitor, * = [session[:visitor_id]].compact.map {|id| Nikki::Model::User.new(id) }
-      slim :index, locals: { visitor: visitor }
+      db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+      authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])
+      slim :index, locals: { visitor: authed_user }
     end
 
     get '/auth/:provider/callback' do
       auth = env['omniauth.auth']
-      session[:visitor_id] = "provider:google:id:#{auth.uid}"
+      db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+      auth_key = Digest::SHA256.hexdigest("provider:google:uid:#{auth.uid}")
+      user = Nikki::Service::User.find_or_register_by(db: db, name: auth[:info][:name], slug: auth[:info][:email], auth_key: auth_key)
+      session[:auth_key] = user.auth_key
       redirect '/'
     end
 
     post '/auth/:provider/callback' do
       auth = env['omniauth.auth']
-      session[:visitor_id] = "provider:google:id:#{auth.uid}"
+      db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+      auth_key = Digest::SHA256.hexdigest("provider:google:uid:#{auth.uid}")
+      user = Nikki::Service::User.find_or_register_by(db: db, name: auth[:info][:name], slug: auth[:info][:email], auth_key: auth_key)
+      session[:auth_key] = user.auth_key
       redirect '/'
     end
 
