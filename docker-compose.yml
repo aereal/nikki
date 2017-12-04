@@ -1,0 +1,14 @@
+---
+
+version: '3'
+services:
+  app:
+    build: .
+    command: bundle exec rackup --host 0.0.0.0
+    volumes:
+      - .:/app
+    ports:
+      - "9292:9292"
+    environment:
+      - GOOGLE_OAUTH_CLIENT_ID
+      - GOOGLE_OAUTH_CLIENT_SECRET
