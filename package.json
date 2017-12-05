@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
-    "compile:watch": "watchify -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file"
+    "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file"
   },
   "config": {
     "out_file": "assets/dist/index.js",
