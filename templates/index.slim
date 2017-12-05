@@ -3,8 +3,17 @@ html
   head
     meta charset="utf-8"
     title Nikki
+    meta name='viewport' content='width=device-width,initial-scale=1'
+    link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css'
+    link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'
+    style
+      | html, body {
+      |   width: 100%;
+      |   height: 100%;
+      | }
+      | #entrypoint {
+      |   height: 100%;
+      | }
   body data-initial-props=initial_props
-    header
-      h1 Nikki
-    main
+    div#entrypoint.container
     script src="/dist/index.js"

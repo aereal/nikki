@@ -1,8 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-const entrypoint = document.querySelector('main');
-
 interface AuthedUser {
   name: string;
   slug: string;
@@ -12,26 +10,30 @@ interface LoginComponentProps {
   authedUser: AuthedUser | null;
 }
 class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
+  private renderMenu(): React.ReactNode {
+    return (
+      <li><a href="#"><i className="material-icons">menu</i></a></li>
+    );
+  }
+
+  private renderSignInLink(): React.ReactNode {
+    return (
+      <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
+    );
+  }
+
   render() {
     const { authedUser } = this.props;
-    if (authedUser !== null) {
-      return (
-        <nav>
-          <ul>
-            <li>User: {authedUser.name}</li>
-            <li><a href="/auth/-/logout">Logout</a></li>
+    return (
+      <nav className="blue-grey">
+        <div className="nav-wrapper">
+          <ul className="right">
+            { authedUser === null ? this.renderSignInLink() : this.renderMenu() }
+            <li><a href="#"><i className="material-icons">menu</i></a></li>
           </ul>
-        </nav>
-      );
-    } else {
-      return (
-        <nav>
-          <ul>
-            <li><a href="/auth/google_oauth2">Sign in with Google</a></li>
-          </ul>
-        </nav>
-      );
-    }
+        </div>
+      </nav>
+    );
   }
 }
 
@@ -50,6 +52,8 @@ class RootComponent extends React.PureComponent<{}, {}> {
     );
   }
 }
+
+const entrypoint = document.getElementById('entrypoint');
 
 ReactDOM.render(
   <>
