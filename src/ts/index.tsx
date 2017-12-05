@@ -37,6 +37,27 @@ class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
   }
 }
 
+class EditorComponent extends React.PureComponent<{}, {}> {
+  render() {
+    return (
+      <>
+        <div id="editor" className="row" style={{height: '75%', marginBottom: 0}}>
+          <form className="col s12" style={{height: '100%'}}>
+            <div className="col s12" style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+              <div className="input-field col s12" style={{minHeight: '80px', flexGrow: 0, flexShrink: 0, flexBasis: '80px'}}>
+                <input className="validate" type="text" placeholder="Title" />
+              </div>
+              <div className="input-field col s12" style={{flexGrow: 1, flexShrink: 0, flexBasis: '20%'}}>
+                <textarea className="materialize-textarea" style={{height: '100%'}} placeholder="Body"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+      </>
+    );
+  }
+}
+
 type InitialProps = LoginComponentProps;
 class RootComponent extends React.PureComponent<{}, {}> {
   render() {
@@ -48,6 +69,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
     return (
       <>
         <LoginComponent authedUser={initialProps.authedUser} />
+        { initialProps.authedUser !== null ? <EditorComponent /> : null  }
       </>
     );
   }
