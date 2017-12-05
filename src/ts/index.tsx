@@ -6,33 +6,33 @@ interface AuthedUser {
   slug: string;
 }
 
-interface LoginComponentProps {
-  authedUser: AuthedUser | null;
+interface AuthenticationComponentProps {
+  authenticatedView: React.ReactNode;
+  authenticationView: React.ReactNode;
+  authenticated: () => boolean;
 }
-class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
-  private renderMenu(): React.ReactNode {
-    return (
-      <li><a href="#"><i className="material-icons">menu</i></a></li>
-    );
-  }
-
-  private renderSignInLink(): React.ReactNode {
-    return (
-      <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
-    );
-  }
-
+class AuthenticationComponent extends React.PureComponent<AuthenticationComponentProps, {}> {
   render() {
-    const { authedUser } = this.props;
+    const { authenticated, authenticationView, authenticatedView } = this.props;
+    if (authenticated()) {
+      return authenticatedView;
+    } else {
+      return authenticationView;
+    }
+  }
+}
+
+class SignInComponent extends React.PureComponent<{}, {}> {
+  render() {
     return (
-      <nav className="blue-grey">
-        <div className="nav-wrapper">
-          <ul className="right">
-            { authedUser === null ? this.renderSignInLink() : this.renderMenu() }
-            <li><a href="#"><i className="material-icons">menu</i></a></li>
-          </ul>
+      <div className="row valign-wrapper" style={{minHeight: '100vh'}}>
+        <div className="col s12">
+          <a className="waves-effect waves-light btn-large" href="/auth/google_oauth2">
+            <i className="material-icons left">input</i>
+            Sign in with Google
+          </a>
         </div>
-      </nav>
+      </div>
     );
   }
 }
@@ -58,7 +58,9 @@ class EditorComponent extends React.PureComponent<{}, {}> {
   }
 }
 
-type InitialProps = LoginComponentProps;
+interface InitialProps {
+  authedUser: AuthedUser | null;
+}
 class RootComponent extends React.PureComponent<{}, {}> {
   render() {
     const rawInitialProps = document.body.dataset['initialProps'];
@@ -67,10 +69,10 @@ class RootComponent extends React.PureComponent<{}, {}> {
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
     return (
-      <>
-        <LoginComponent authedUser={initialProps.authedUser} />
-        { initialProps.authedUser !== null ? <EditorComponent /> : null  }
-      </>
+      <AuthenticationComponent
+        authenticated={() => initialProps.authedUser !== null }
+        authenticatedView={<EditorComponent />}
+        authenticationView={<SignInComponent />} />
     );
   }
 }
