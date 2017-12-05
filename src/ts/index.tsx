@@ -10,29 +10,30 @@ interface LoginComponentProps {
   authedUser: AuthedUser | null;
 }
 class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
+  private renderMenu(): React.ReactNode {
+    return (
+      <li><a href="#"><i className="material-icons">menu</i></a></li>
+    );
+  }
+
+  private renderSignInLink(): React.ReactNode {
+    return (
+      <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
+    );
+  }
+
   render() {
     const { authedUser } = this.props;
-    if (authedUser !== null) {
-      return (
-        <nav className="blue-grey">
-          <div className="nav-wrapper">
-            <ul className="right">
-              <li><a href="#"><i className="material-icons">menu</i></a></li>
-            </ul>
-          </div>
-        </nav>
-      );
-    } else {
-      return (
-        <nav className="blue-grey">
-          <div className="nav-wrapper">
-            <ul className="right">
-              <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
-            </ul>
-          </div>
-        </nav>
-      );
-    }
+    return (
+      <nav className="blue-grey">
+        <div className="nav-wrapper">
+          <ul className="right">
+            { authedUser === null ? this.renderSignInLink() : this.renderMenu() }
+            <li><a href="#"><i className="material-icons">menu</i></a></li>
+          </ul>
+        </div>
+      </nav>
+    );
   }
 }
 
