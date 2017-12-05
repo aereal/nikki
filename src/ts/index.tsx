@@ -1,8 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-const entrypoint = document.querySelector('main');
-
 interface AuthedUser {
   name: string;
   slug: string;
@@ -16,19 +14,22 @@ class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
     const { authedUser } = this.props;
     if (authedUser !== null) {
       return (
-        <nav>
-          <ul>
-            <li>User: {authedUser.name}</li>
-            <li><a href="/auth/-/logout">Logout</a></li>
-          </ul>
+        <nav className="blue-grey">
+          <div className="nav-wrapper">
+            <ul className="right">
+              <li><a href="#"><i className="material-icons">menu</i></a></li>
+            </ul>
+          </div>
         </nav>
       );
     } else {
       return (
-        <nav>
-          <ul>
-            <li><a href="/auth/google_oauth2">Sign in with Google</a></li>
-          </ul>
+        <nav className="blue-grey">
+          <div className="nav-wrapper">
+            <ul className="right">
+              <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
+            </ul>
+          </div>
         </nav>
       );
     }
@@ -50,6 +51,8 @@ class RootComponent extends React.PureComponent<{}, {}> {
     );
   }
 }
+
+const entrypoint = document.getElementById('entrypoint');
 
 ReactDOM.render(
   <>
