@@ -1,3 +1,5 @@
+/* tslint:disable:max-classes-per-file */
+
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
