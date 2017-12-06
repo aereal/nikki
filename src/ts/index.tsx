@@ -37,10 +37,13 @@ class SignInComponent extends React.PureComponent<{}, {}> {
   }
 }
 
-class EditorComponent extends React.PureComponent<{}, {}> {
+interface EditorComponentProps {
+  headerHeight: string | number;
+}
+class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
   private renderHeader(): React.ReactNode {
     return (
-      <div className="input-field" style={{minHeight: '80px', flexGrow: 0, flexShrink: 0, flexBasis: '80px'}}>
+      <div className="input-field" style={{flexGrow: 0, flexShrink: 0, flexBasis: this.props.headerHeight}}>
         <input className="validate" type="text" placeholder="Title" />
       </div>
     );
@@ -49,7 +52,7 @@ class EditorComponent extends React.PureComponent<{}, {}> {
   private renderTextarea(): React.ReactNode {
     return (
       <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: 'auto', height: 0}}>
-        <textarea className="materialize-textarea" style={{height: 'calc(100% - 80px)'}} placeholder="Body"></textarea>
+        <textarea className="materialize-textarea" style={{height: `calc(100% - ${this.props.headerHeight})`}} placeholder="Body"></textarea>
       </div>
     );
   }
@@ -79,7 +82,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
     return (
       <AuthenticationComponent
         authenticated={() => initialProps.authedUser !== null }
-        authenticatedView={<EditorComponent />}
+        authenticatedView={<EditorComponent headerHeight='10vh' />}
         authenticationView={<SignInComponent />} />
     );
   }
