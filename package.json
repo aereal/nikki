@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "tslint -p .",
+    "lint:autofix": "tslint -p . --fix",
     "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
     "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file"
   },
@@ -30,6 +32,7 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "tsify": "^3.0.3",
+    "tslint": "^5.8.0",
     "typescript": "^2.6.2",
     "watchify": "^3.9.0"
   }
