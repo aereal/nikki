@@ -39,12 +39,21 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 
 interface EditorComponentProps {
   headerHeight: string | number;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
   private renderHeader(): React.ReactNode {
+    const childStyle: React.CSSProperties = {flexGrow: 0, flexShrink: 0, flexBasis: this.props.headerHeight};
+    const parentStyle: React.CSSProperties  = {display: 'flex', flexDirection: 'row'};
+    const headerStyle: React.CSSProperties = { ...childStyle, ...parentStyle };
     return (
-      <div className="input-field" style={{flexGrow: 0, flexShrink: 0, flexBasis: this.props.headerHeight}}>
-        <input className="validate" type="text" placeholder="Title" />
+      <div className="" style={headerStyle}>
+        <div className="input-field" style={{flex: '1 1 auto'}}>
+          <input className="validate" type="text" placeholder="Title" />
+        </div>
+        <div style={{minWidth: '10%', marginTop:'14px'}}>
+          <button className="btn waves-effect waves-light"><i className="material-icons">publish</i></button>
+        </div>
       </div>
     );
   }
@@ -60,7 +69,7 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
   render() {
     return (
       <>
-        <form style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
+        <form style={{height: '100%', display: 'flex', flexDirection: 'column'}} onSubmit={this.props.onSubmit}>
           { this.renderHeader() }
           { this.renderTextarea() }
         </form>
@@ -82,7 +91,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
     return (
       <AuthenticationComponent
         authenticated={() => initialProps.authedUser !== null }
-        authenticatedView={<EditorComponent headerHeight='10vh' />}
+        authenticatedView={<EditorComponent headerHeight='10vh' onSubmit={(event) => { event.preventDefault(); alert('publish') }} />}
         authenticationView={<SignInComponent />} />
     );
   }
