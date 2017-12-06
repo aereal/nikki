@@ -41,14 +41,14 @@ class EditorComponent extends React.PureComponent<{}, {}> {
   render() {
     return (
       <>
-        <div id="editor" className="row" style={{height: '75%', marginBottom: 0}}>
+        <div id="editor" className="row" style={{height: '100%', marginBottom: 0}}>
           <form className="col s12" style={{height: '100%'}}>
             <div className="col s12" style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
               <div className="input-field col s12" style={{minHeight: '80px', flexGrow: 0, flexShrink: 0, flexBasis: '80px'}}>
                 <input className="validate" type="text" placeholder="Title" />
               </div>
-              <div className="input-field col s12" style={{flexGrow: 1, flexShrink: 0, flexBasis: '20%'}}>
-                <textarea className="materialize-textarea" style={{height: '100%'}} placeholder="Body"></textarea>
+              <div className="input-field col s12" style={{flexGrow: 1, flexShrink: 0, flexBasis: 'auto', height: 0}}>
+                <textarea className="materialize-textarea" style={{height: 'calc(100% - 80px)'}} placeholder="Body"></textarea>
               </div>
             </div>
           </form>
