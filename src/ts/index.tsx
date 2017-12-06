@@ -42,6 +42,17 @@ interface EditorComponentProps {
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
+  public render() {
+    return (
+      <>
+        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={this.props.onSubmit}>
+          { this.renderHeader() }
+          { this.renderTextarea() }
+        </form>
+      </>
+    );
+  }
+
   private renderHeader(): React.ReactNode {
     const childStyle: React.CSSProperties = {flexGrow: 0, flexShrink: 0, flexBasis: this.props.headerHeight};
     const parentStyle: React.CSSProperties  = {display: "flex", flexDirection: "row"};
@@ -63,17 +74,6 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
       <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: "auto", height: 0}}>
         <textarea className="materialize-textarea" style={{height: `calc(100% - ${this.props.headerHeight})`}} placeholder="Body"></textarea>
       </div>
-    );
-  }
-
-  public render() {
-    return (
-      <>
-        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={this.props.onSubmit}>
-          { this.renderHeader() }
-          { this.renderTextarea() }
-        </form>
-      </>
     );
   }
 }
