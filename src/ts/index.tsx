@@ -70,9 +70,10 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
   }
 
   private renderTextarea(): React.ReactNode {
+    const textareaStyle: React.CSSProperties = {height: `calc(100% - ${this.props.headerHeight})`};
     return (
       <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: "auto", height: 0}}>
-        <textarea className="materialize-textarea" style={{height: `calc(100% - ${this.props.headerHeight})`}} placeholder="Body"></textarea>
+        <textarea className="materialize-textarea" style={textareaStyle} placeholder="Body"></textarea>
       </div>
     );
   }
@@ -88,10 +89,14 @@ class RootComponent extends React.PureComponent<{}, {}> {
       throw new Error("Invalid initial props");
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
+    const onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+      event.preventDefault();
+      alert("publish");
+    };
     return (
       <AuthenticationComponent
         authenticated={() => initialProps.authedUser !== null }
-        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={(event) => { event.preventDefault(); alert("publish"); }} />}
+        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
         authenticationView={<SignInComponent />} />
     );
   }
