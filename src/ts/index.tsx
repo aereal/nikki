@@ -6,38 +6,81 @@ interface AuthedUser {
   slug: string;
 }
 
-interface LoginComponentProps {
-  authedUser: AuthedUser | null;
+interface AuthenticationComponentProps {
+  authenticatedView: React.ReactNode;
+  authenticationView: React.ReactNode;
+  authenticated: () => boolean;
 }
-class LoginComponent extends React.PureComponent<LoginComponentProps, {}> {
-  private renderMenu(): React.ReactNode {
+class AuthenticationComponent extends React.PureComponent<AuthenticationComponentProps, {}> {
+  render() {
+    const { authenticated, authenticationView, authenticatedView } = this.props;
+    if (authenticated()) {
+      return authenticatedView;
+    } else {
+      return authenticationView;
+    }
+  }
+}
+
+class SignInComponent extends React.PureComponent<{}, {}> {
+  render() {
     return (
-      <li><a href="#"><i className="material-icons">menu</i></a></li>
+      <div className="row valign-wrapper" style={{minHeight: '100vh'}}>
+        <div className="col s12">
+          <a className="waves-effect waves-light btn-large" href="/auth/google_oauth2">
+            <i className="material-icons left">input</i>
+            Sign in with Google
+          </a>
+        </div>
+      </div>
+    );
+  }
+}
+
+interface EditorComponentProps {
+  headerHeight: string | number;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
+}
+class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
+  private renderHeader(): React.ReactNode {
+    const childStyle: React.CSSProperties = {flexGrow: 0, flexShrink: 0, flexBasis: this.props.headerHeight};
+    const parentStyle: React.CSSProperties  = {display: 'flex', flexDirection: 'row'};
+    const headerStyle: React.CSSProperties = { ...childStyle, ...parentStyle };
+    return (
+      <div className="" style={headerStyle}>
+        <div className="input-field" style={{flex: '1 1 auto'}}>
+          <input className="validate" type="text" placeholder="Title" />
+        </div>
+        <div style={{minWidth: '10%', marginTop:'14px'}}>
+          <button className="btn waves-effect waves-light"><i className="material-icons">publish</i></button>
+        </div>
+      </div>
     );
   }
 
-  private renderSignInLink(): React.ReactNode {
+  private renderTextarea(): React.ReactNode {
     return (
-      <li><a href="/auth/google_oauth2"><i className="material-icons">input</i></a></li>
+      <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: 'auto', height: 0}}>
+        <textarea className="materialize-textarea" style={{height: `calc(100% - ${this.props.headerHeight})`}} placeholder="Body"></textarea>
+      </div>
     );
   }
 
   render() {
-    const { authedUser } = this.props;
     return (
-      <nav className="blue-grey">
-        <div className="nav-wrapper">
-          <ul className="right">
-            { authedUser === null ? this.renderSignInLink() : this.renderMenu() }
-            <li><a href="#"><i className="material-icons">menu</i></a></li>
-          </ul>
-        </div>
-      </nav>
+      <>
+        <form style={{height: '100%', display: 'flex', flexDirection: 'column'}} onSubmit={this.props.onSubmit}>
+          { this.renderHeader() }
+          { this.renderTextarea() }
+        </form>
+      </>
     );
   }
 }
 
-type InitialProps = LoginComponentProps;
+interface InitialProps {
+  authedUser: AuthedUser | null;
+}
 class RootComponent extends React.PureComponent<{}, {}> {
   render() {
     const rawInitialProps = document.body.dataset['initialProps'];
@@ -46,9 +89,10 @@ class RootComponent extends React.PureComponent<{}, {}> {
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
     return (
-      <>
-        <LoginComponent authedUser={initialProps.authedUser} />
-      </>
+      <AuthenticationComponent
+        authenticated={() => initialProps.authedUser !== null }
+        authenticatedView={<EditorComponent headerHeight='10vh' onSubmit={(event) => { event.preventDefault(); alert('publish') }} />}
+        authenticationView={<SignInComponent />} />
     );
   }
 }
