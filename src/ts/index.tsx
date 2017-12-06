@@ -38,18 +38,30 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 }
 
 class EditorComponent extends React.PureComponent<{}, {}> {
+  private renderHeader(): React.ReactNode {
+    return (
+      <div className="input-field col s12" style={{minHeight: '80px', flexGrow: 0, flexShrink: 0, flexBasis: '80px'}}>
+        <input className="validate" type="text" placeholder="Title" />
+      </div>
+    );
+  }
+
+  private renderTextarea(): React.ReactNode {
+    return (
+      <div className="input-field col s12" style={{flexGrow: 1, flexShrink: 0, flexBasis: 'auto', height: 0}}>
+        <textarea className="materialize-textarea" style={{height: 'calc(100% - 80px)'}} placeholder="Body"></textarea>
+      </div>
+    );
+  }
+
   render() {
     return (
       <>
         <div id="editor" className="row" style={{height: '100%', marginBottom: 0}}>
           <form className="col s12" style={{height: '100%'}}>
             <div className="col s12" style={{height: '100%', display: 'flex', flexDirection: 'column'}}>
-              <div className="input-field col s12" style={{minHeight: '80px', flexGrow: 0, flexShrink: 0, flexBasis: '80px'}}>
-                <input className="validate" type="text" placeholder="Title" />
-              </div>
-              <div className="input-field col s12" style={{flexGrow: 1, flexShrink: 0, flexBasis: 'auto', height: 0}}>
-                <textarea className="materialize-textarea" style={{height: 'calc(100% - 80px)'}} placeholder="Body"></textarea>
-              </div>
+              { this.renderHeader() }
+              { this.renderTextarea() }
             </div>
           </form>
         </div>
