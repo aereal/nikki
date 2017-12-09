@@ -75,9 +75,8 @@ module Nikki
 
     get '/schema' do
       content_type 'application/json'
-      schema_json = Swagger::Blocks.build_root_json([self.class])
       headers 'Access-Control-Allow-Origin' => '*'
-      JSON.generate(schema_json)
+      JSON.generate(self.class.api_schema)
     end
 
     get '/' do
@@ -110,6 +109,10 @@ module Nikki
     get '/auth/-/logout' do
       session[:visitor_id] = nil
       redirect '/'
+    end
+
+    def self.api_schema
+      @api_schema ||= Swagger::Blocks.build_root_json([self])
     end
   end
 end
