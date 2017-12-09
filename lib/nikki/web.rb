@@ -4,11 +4,14 @@ require 'omniauth-google-oauth2'
 require 'sequel'
 require 'sinatra/base'
 require 'slim'
+require 'swagger/blocks'
 
 require 'nikki/service/user'
 
 module Nikki
   class Web < ::Sinatra::Base
+    include Swagger::Blocks
+
     enable :sessions
     enable :logging
     set :views, File.expand_path(File.join(settings.root, '../../templates'))
@@ -30,6 +33,22 @@ module Nikki
 
     use OmniAuth::Builder do
       provider :google_oauth2, ENV['GOOGLE_OAUTH_CLIENT_ID'], ENV['GOOGLE_OAUTH_CLIENT_SECRET']
+    end
+
+    swagger_root do
+      key :swagger, '2.0'
+      key :host, 'localhost:9292'
+      info do
+        key :title, 'Nikki API'
+        key :version, '0.0.1'
+      end
+    end
+
+    get '/schema' do
+      content_type 'application/json'
+      schema_json = Swagger::Blocks.build_root_json([self.class])
+      headers 'Access-Allow-Allow-Origin' => '*'
+      JSON.generate(schema_json)
     end
 
     get '/' do
