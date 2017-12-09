@@ -128,8 +128,46 @@ module Nikki
       redirect '/'
     end
 
+    swagger_schema :NewArticle do
+      property :title do
+        key :type, 'string'
+      end
+      property :body do
+        key :type, 'string'
+      end
+      key :required, [:title, :body]
+    end
+
+    swagger_path '/articles' do
+      operation :post do
+        key :summary, 'Create a new article'
+        parameter do
+          key :required, true
+          key :description, 'new article'
+          key :name, :new_article
+          key :in, :body
+          schema do
+            key :'$ref', :NewArticle
+          end
+        end
+        response 200 do
+          key :description, 'OK'
+        end
+        response 422 do
+          key :description, 'Invalid parameters'
+        end
+      end
+    end
+
+    options '/articles' do
+      headers['allow'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+      headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+      headers 'Access-Control-Allow-Origin' => '*'
+      200
+    end
     post '/articles' do
       content_type 'application/json'
+      headers 'Access-Control-Allow-Origin' => '*'
 
       validated_api_request(:post, :'/articles') do |parsed_body|
         JSON.generate(ok: true, req: parsed_body)
