@@ -76,7 +76,7 @@ module Nikki
     get '/schema' do
       content_type 'application/json'
       schema_json = Swagger::Blocks.build_root_json([self.class])
-      headers 'Access-Allow-Allow-Origin' => '*'
+      headers 'Access-Control-Allow-Origin' => '*'
       JSON.generate(schema_json)
     end
 
