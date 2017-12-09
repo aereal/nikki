@@ -88,6 +88,11 @@ module Nikki
         key :title, 'Nikki API'
         key :version, '0.0.1'
       end
+      security_definition :visitor_key do
+        key :type, :apiKey
+        key :name, :'visitor-key'
+        key :in, :header
+      end
     end
 
     get '/schema' do
@@ -156,12 +161,15 @@ module Nikki
         response 422 do
           key :description, 'Invalid parameters'
         end
+        security do
+          key :visitor_key, []
+        end
       end
     end
 
     options '/articles' do
       headers['allow'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
-      headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept"
+      headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Visitor-Key"
       headers 'Access-Control-Allow-Origin' => '*'
       200
     end
@@ -170,6 +178,19 @@ module Nikki
       headers 'Access-Control-Allow-Origin' => '*'
 
       validated_api_request(:post, :'/articles') do |parsed_body|
+        visitor_key = request.get_header('HTTP_VISITOR_KEY')
+
+        unless visitor_key
+          halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
+        end
+
+        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+        authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
+
+        unless authed_user
+          halt 401, JSON.generate(errors: ['Unauthorized; visitor-key is invalid'])
+        end
+
         JSON.generate(ok: true, req: parsed_body)
       end
     end
