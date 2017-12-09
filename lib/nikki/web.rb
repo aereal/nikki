@@ -8,6 +8,7 @@ require 'sinatra/base'
 require 'slim'
 require 'swagger/blocks'
 
+require 'nikki/service/articles'
 require 'nikki/service/user'
 
 module Nikki
@@ -143,6 +144,19 @@ module Nikki
       key :required, [:title, :body]
     end
 
+    swagger_schema :Article do
+      property :id do
+        key :type, 'integer'
+      end
+      property :title do
+        key :type, 'string'
+      end
+      property :html_body do
+        key :type, 'string'
+      end
+      key :required, [:id, :title, :html_body]
+    end
+
     swagger_path '/articles' do
       operation :post do
         key :summary, 'Create a new article'
@@ -157,6 +171,9 @@ module Nikki
         end
         response 200 do
           key :description, 'OK'
+          schema do
+            key :'$ref', :Article
+          end
         end
         response 422 do
           key :description, 'Invalid parameters'
@@ -191,7 +208,8 @@ module Nikki
           halt 401, JSON.generate(errors: ['Unauthorized; visitor-key is invalid'])
         end
 
-        JSON.generate(ok: true, req: parsed_body)
+        posted_article = Nikki::Service::Articles.post(db: db, title: parsed_body['title'], body: parsed_body['body'], author: authed_user)
+        JSON.generate(posted_article.as_json_hash)
       end
     end
 
