@@ -1,4 +1,5 @@
 require 'digest/sha2'
+require 'json-schema'
 require 'omniauth'
 require 'omniauth-google-oauth2'
 require 'rack/common_logger'
@@ -64,6 +65,22 @@ module Nikki
       provider :google_oauth2, ENV['GOOGLE_OAUTH_CLIENT_ID'], ENV['GOOGLE_OAUTH_CLIENT_SECRET']
     end
 
+    helpers do
+      def validated_api_request(method, path, &block)
+        definitions = self.class.api_schema[:definitions]
+        body_schema = self.class.api_schema[:paths][path][method][:parameters].first[:schema] # TODO
+        req_schema = body_schema.merge(definitions: definitions)
+        parsed_body = JSON.load(request.body)
+        errors = JSON::Validator.fully_validate(req_schema, parsed_body)
+        if errors.empty?
+          block.call(parsed_body)
+        else
+          content_type 'application/json'
+          halt(422, JSON.generate(errors: errors.map(&:to_s)))
+        end
+      end
+    end
+
     swagger_root do
       key :swagger, '2.0'
       key :host, 'localhost:9292'
@@ -109,6 +126,14 @@ module Nikki
     get '/auth/-/logout' do
       session[:visitor_id] = nil
       redirect '/'
+    end
+
+    post '/articles' do
+      content_type 'application/json'
+
+      validated_api_request(:post, :'/articles') do |parsed_body|
+        JSON.generate(ok: true, req: parsed_body)
+      end
     end
 
     def self.api_schema
