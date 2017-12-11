@@ -175,6 +175,9 @@ module Nikki
             key :'$ref', :Article
           end
         end
+        response 401 do
+          key :description, 'Authentication failed'
+        end
         response 422 do
           key :description, 'Invalid parameters'
         end
