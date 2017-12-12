@@ -14,6 +14,16 @@ interface EditingArticle {
   body: string;
 }
 
+interface PostedArticle {
+  id: number;
+  title: string;
+  body: string;
+}
+
+export function isPostedArticle(json: any): json is PostedArticle {
+  return (json as PostedArticle).id !== undefined;
+}
+
 interface AuthenticationComponentProps {
   authenticatedView: React.ReactNode;
   authenticationView: React.ReactNode;
@@ -125,16 +135,44 @@ class RootComponent extends React.PureComponent<{}, {}> {
       throw new Error("Invalid initial props");
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
-    const onSubmit = (article: EditingArticle) => {
-      console.log(article);
-      alert("publish");
-    };
+    const authedUser = initialProps.authedUser
+    const onSubmit = authedUser === undefined || authedUser === null ?
+      () => {} :
+      (article: EditingArticle) => {
+        this.postArticle(authedUser, article).then((postedArticle) => {
+          console.log(postedArticle);
+        });
+        alert("publish");
+      };
     return (
       <AuthenticationComponent
         authenticated={() => initialProps.authedUser !== null }
         authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
         authenticationView={<SignInComponent />} />
     );
+  }
+
+  private postArticle(author: AuthedUser, article: EditingArticle): Promise<PostedArticle> {
+    const req = window.fetch("/articles", {
+      body: JSON.stringify({
+        body: article.body,
+        title: article.title,
+      }),
+      credentials: "same-origin",
+      headers: {
+        "visitor-key": author.authKey,
+      },
+      method: "POST",
+    });
+    return req
+      .then((res) => res.json())
+      .then((json) => {
+        if (isPostedArticle(json)) {
+          return json;
+        } else {
+          throw new Error("Invalid response");
+        }
+      });
   }
 }
 
