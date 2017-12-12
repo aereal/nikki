@@ -14,10 +14,8 @@ interface Article {
   body: string;
 }
 
-interface PostedArticle {
+interface PostedArticle extends Article {
   id: number;
-  title: string;
-  body: string;
 }
 
 export function isPostedArticle(json: any): json is PostedArticle {
