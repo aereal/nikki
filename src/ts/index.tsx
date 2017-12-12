@@ -6,6 +6,7 @@ import * as ReactDOM from "react-dom";
 interface AuthedUser {
   name: string;
   slug: string;
+  authKey: string;
 }
 
 interface EditingArticle {
