@@ -43,7 +43,19 @@ interface EditorComponentProps {
   headerHeight: string | number;
   onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
-class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
+interface EditorComponentState {
+  title: string;
+  body: string;
+}
+class EditorComponent extends React.PureComponent<EditorComponentProps, EditorComponentState> {
+  constructor(props: EditorComponentProps) {
+    super(props);
+    this.state = {
+      body: "",
+      title: "",
+    };
+  }
+
   public render() {
     return (
       <>
@@ -62,7 +74,12 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
     return (
       <div className="" style={headerStyle}>
         <div className="input-field" style={{flex: "1 1 auto"}}>
-          <input className="validate" type="text" placeholder="Title" />
+          <input
+            className="validate"
+            type="text"
+            placeholder="Title"
+            value={this.state.title}
+            onChange={(e) => this.setState({ title: e.target.value })} />
         </div>
         <div style={{minWidth: "10%", marginTop: "14px"}}>
           <button className="btn waves-effect waves-light"><i className="material-icons">publish</i></button>
@@ -75,7 +92,13 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
     const textareaStyle: React.CSSProperties = {height: `calc(100% - ${this.props.headerHeight})`};
     return (
       <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: "auto", height: 0}}>
-        <textarea className="materialize-textarea" style={textareaStyle} placeholder="Body"></textarea>
+        <textarea
+          className="materialize-textarea"
+          style={textareaStyle}
+          placeholder="Body"
+          onChange={(e) => this.setState({ body: e.target.value })}
+          value={this.state.body}>
+        </textarea>
       </div>
     );
   }
