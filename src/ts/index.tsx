@@ -9,7 +9,7 @@ interface AuthedUser {
   authKey: string;
 }
 
-interface EditingArticle {
+interface Article {
   title: string;
   body: string;
 }
@@ -57,7 +57,7 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 
 interface EditorComponentProps {
   headerHeight: string | number;
-  onSubmit: (editingArticle: EditingArticle) => void;
+  onSubmit: (editingArticle: Article) => void;
 }
 interface EditorComponentState {
   title: string;
@@ -75,7 +75,7 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   public render() {
     const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
       e.preventDefault();
-      const editingArticle: EditingArticle = { title: this.state.title, body: this.state.body};
+      const editingArticle: Article = { title: this.state.title, body: this.state.body};
       this.props.onSubmit(editingArticle);
     };
     return (
@@ -138,7 +138,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
     const authedUser = initialProps.authedUser
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
-      (article: EditingArticle) => {
+      (article: Article) => {
         this.postArticle(authedUser, article).then((postedArticle) => {
           console.log(postedArticle);
         });
@@ -152,7 +152,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
     );
   }
 
-  private postArticle(author: AuthedUser, article: EditingArticle): Promise<PostedArticle> {
+  private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
     const req = window.fetch("/articles", {
       body: JSON.stringify({
         body: article.body,
