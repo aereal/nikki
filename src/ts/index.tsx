@@ -8,6 +8,11 @@ interface AuthedUser {
   slug: string;
 }
 
+interface EditingArticle {
+  title: string;
+  body: string;
+}
+
 interface AuthenticationComponentProps {
   authenticatedView: React.ReactNode;
   authenticationView: React.ReactNode;
@@ -41,7 +46,7 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 
 interface EditorComponentProps {
   headerHeight: string | number;
-  onSubmit: React.FormEventHandler<HTMLFormElement>;
+  onSubmit: (editingArticle: EditingArticle) => void;
 }
 interface EditorComponentState {
   title: string;
@@ -57,9 +62,14 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   }
 
   public render() {
+    const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+      e.preventDefault();
+      const editingArticle: EditingArticle = { title: this.state.title, body: this.state.body};
+      this.props.onSubmit(editingArticle);
+    };
     return (
       <>
-        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={this.props.onSubmit}>
+        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={onSubmit}>
           { this.renderHeader() }
           { this.renderTextarea() }
         </form>
@@ -114,8 +124,8 @@ class RootComponent extends React.PureComponent<{}, {}> {
       throw new Error("Invalid initial props");
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
-    const onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-      event.preventDefault();
+    const onSubmit = (article: EditingArticle) => {
+      console.log(article);
       alert("publish");
     };
     return (
