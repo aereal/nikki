@@ -1,3 +1,4 @@
 pg-data
 node_modules
 assets/dist/
+etc/certs
