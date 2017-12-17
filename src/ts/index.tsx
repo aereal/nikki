@@ -135,6 +135,10 @@ class RootComponent extends React.PureComponent<{}, {}> {
       throw new Error("Invalid initial props");
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
+    return this.renderRoot(initialProps);
+  }
+
+  private renderRoot(initialProps: InitialProps): React.ReactNode {
     const authedUser = initialProps.authedUser
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
