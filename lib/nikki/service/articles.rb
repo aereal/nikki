@@ -3,6 +3,11 @@ require 'nikki/model/article'
 module Nikki
   module Service
     module Articles
+      def self.find(db: , article_id: )
+        row = db[:articles].where(id: article_id).first
+        row ? Nikki::Model::Article.new(**row) : nil
+      end
+
       def self.post(db: , title: , body: , author: )
         html_body = body # TODO
         created_at = updated_at = Time.now
