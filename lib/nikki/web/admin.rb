@@ -33,6 +33,8 @@ module Nikki
       configure :development do
         require 'sinatra/reloader'
         register ::Sinatra::Reloader
+        root = File.expand_path(File.join(settings.root, '../../..'))
+        also_reload "#{root}/lib/**/*.rb"
       end
 
       use OmniAuth::Builder do
