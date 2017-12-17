@@ -27,3 +27,12 @@ services:
       - .:/app
       - ./node_modules:/app/node_modules
     command: yarn run compile:watch
+  proxy:
+    image: nginx:latest
+    ports:
+      - "443:443"
+    volumes:
+      - ./etc/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./etc/certs:/etc/certs.d
+    depends_on:
+      - app
