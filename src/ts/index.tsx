@@ -6,6 +6,20 @@ import * as ReactDOM from "react-dom";
 interface AuthedUser {
   name: string;
   slug: string;
+  authKey: string;
+}
+
+interface Article {
+  title: string;
+  body: string;
+}
+
+interface PostedArticle extends Article {
+  id: number;
+}
+
+export function isPostedArticle(json: any): json is PostedArticle {
+  return (json as PostedArticle).id !== undefined;
 }
 
 interface AuthenticationComponentProps {
@@ -41,13 +55,30 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 
 interface EditorComponentProps {
   headerHeight: string | number;
-  onSubmit: React.FormEventHandler<HTMLFormElement>;
+  onSubmit: (editingArticle: Article) => void;
 }
-class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
+interface EditorComponentState {
+  title: string;
+  body: string;
+}
+class EditorComponent extends React.PureComponent<EditorComponentProps, EditorComponentState> {
+  constructor(props: EditorComponentProps) {
+    super(props);
+    this.state = {
+      body: "",
+      title: "",
+    };
+  }
+
   public render() {
+    const onSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+      e.preventDefault();
+      const editingArticle: Article = { title: this.state.title, body: this.state.body};
+      this.props.onSubmit(editingArticle);
+    };
     return (
       <>
-        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={this.props.onSubmit}>
+        <form style={{height: "100%", display: "flex", flexDirection: "column"}} onSubmit={onSubmit}>
           { this.renderHeader() }
           { this.renderTextarea() }
         </form>
@@ -62,7 +93,12 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
     return (
       <div className="" style={headerStyle}>
         <div className="input-field" style={{flex: "1 1 auto"}}>
-          <input className="validate" type="text" placeholder="Title" />
+          <input
+            className="validate"
+            type="text"
+            placeholder="Title"
+            value={this.state.title}
+            onChange={(e) => this.setState({ title: e.target.value })} />
         </div>
         <div style={{minWidth: "10%", marginTop: "14px"}}>
           <button className="btn waves-effect waves-light"><i className="material-icons">publish</i></button>
@@ -75,7 +111,13 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, {}> {
     const textareaStyle: React.CSSProperties = {height: `calc(100% - ${this.props.headerHeight})`};
     return (
       <div className="input-field" style={{flexGrow: 1, flexShrink: 0, flexBasis: "auto", height: 0}}>
-        <textarea className="materialize-textarea" style={textareaStyle} placeholder="Body"></textarea>
+        <textarea
+          className="materialize-textarea"
+          style={textareaStyle}
+          placeholder="Body"
+          onChange={(e) => this.setState({ body: e.target.value })}
+          value={this.state.body}>
+        </textarea>
       </div>
     );
   }
@@ -91,16 +133,44 @@ class RootComponent extends React.PureComponent<{}, {}> {
       throw new Error("Invalid initial props");
     }
     const initialProps: InitialProps = JSON.parse(rawInitialProps);
-    const onSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-      event.preventDefault();
-      alert("publish");
-    };
+    const authedUser = initialProps.authedUser
+    const onSubmit = authedUser === undefined || authedUser === null ?
+      () => {} :
+      (article: Article) => {
+        this.postArticle(authedUser, article).then((postedArticle) => {
+          console.log(postedArticle);
+        });
+        alert("publish");
+      };
     return (
       <AuthenticationComponent
         authenticated={() => initialProps.authedUser !== null }
         authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
         authenticationView={<SignInComponent />} />
     );
+  }
+
+  private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
+    const req = window.fetch("/articles", {
+      body: JSON.stringify({
+        body: article.body,
+        title: article.title,
+      }),
+      credentials: "same-origin",
+      headers: {
+        "visitor-key": author.authKey,
+      },
+      method: "POST",
+    });
+    return req
+      .then((res) => res.json())
+      .then((json) => {
+        if (isPostedArticle(json)) {
+          return json;
+        } else {
+          throw new Error("Invalid response");
+        }
+      });
   }
 }
 
