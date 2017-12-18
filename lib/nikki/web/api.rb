@@ -27,7 +27,8 @@ module Nikki
       helpers do
         def validated_api_request(method, path, &block)
           definitions = self.class.api_schema[:definitions]
-          body_schema = self.class.api_schema[:paths][path][method][:parameters].first[:schema] || {} # TODO
+          param_schema = self.class.api_schema[:paths][path][method][:parameters] || []
+          body_schema = (param_schema.first || {})[:schema] || {} # TODO
           req_schema = body_schema.merge(definitions: definitions)
           parsed_body = JSON.load(request.body)
           errors = JSON::Validator.fully_validate(req_schema, parsed_body)
@@ -111,6 +112,21 @@ module Nikki
             key :visitor_key, []
           end
         end
+        operation :get do
+          key :summary, 'Get articles'
+          response 200 do
+            key :description, 'OK'
+            schema do
+              key :'$ref', :Article
+            end
+          end
+          response 401 do
+            key :description, 'Authentication failed'
+          end
+          security do
+            key :visitor_key, []
+          end
+        end
       end
 
       options '/articles' do
@@ -119,6 +135,31 @@ module Nikki
         headers 'Access-Control-Allow-Origin' => '*'
         200
       end
+
+      get '/articles' do
+        content_type 'application/json'
+        headers 'Access-Control-Allow-Origin' => '*'
+
+        validated_api_request(:get, :'/articles') do |parsed_body|
+          visitor_key = request.get_header('HTTP_VISITOR_KEY')
+
+          unless visitor_key
+            halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
+          end
+
+          db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+          authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
+
+          unless authed_user
+            halt 401, JSON.generate(errors: ['Unauthorized; visitor-key is invalid'])
+          end
+
+          articles = Nikki::Service::Articles.search_by_author(db: db, author: authed_user)
+
+          JSON.generate(articles.map(&:as_json_hash))
+        end
+      end
+
       post '/articles' do
         content_type 'application/json'
         headers 'Access-Control-Allow-Origin' => '*'

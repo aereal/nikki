@@ -2,6 +2,21 @@ import { API_ORIGIN } from "../endpoints";
 import { Article, isPostedArticle , PostedArticle } from "../models/article";
 import { AuthedUser } from "../models/user";
 
+export const fetchArticles = (author: AuthedUser): Promise<PostedArticle[]> => {
+  const req = window.fetch(`${API_ORIGIN}/articles`, {
+    credentials: "same-origin",
+    headers: {
+      "visitor-key": author.authKey,
+    },
+    method: "GET",
+  });
+  return req
+    .then((res) => res.json())
+    .then((json) => {
+      return json as PostedArticle[];
+    });
+};
+
 export const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticle> => {
   const req = window.fetch(`${API_ORIGIN}/articles`, {
     body: JSON.stringify({

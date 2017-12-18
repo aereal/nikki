@@ -8,6 +8,11 @@ module Nikki
         row ? Nikki::Model::Article.new(**row) : nil
       end
 
+      def self.search_by_author(db: , author: )
+        rows = db[:articles].where(author_id: author.id)
+        rows.map {|r| Nikki::Model::Article.new(**r) }
+      end
+
       def self.post(db: , title: , body: , author: )
         html_body = body # TODO
         created_at = updated_at = Time.now

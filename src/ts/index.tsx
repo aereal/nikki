@@ -2,6 +2,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { EditArticlePageComponent, Props as EditArticlePageComponentProps } from "./pages/editArticle";
+import { ListArticlesPageComponent, Props as ListArticlesPageComponentProps } from "./pages/listArticles";
 import { NewArticlePageComponent, Props as NewArticlePageComponentProps } from "./pages/newArticle";
 
 function getInitialProps<T>(): T | null {
@@ -21,6 +22,14 @@ const Router: React.SFC<{ location: Location }> = ({ location }) => {
         throw new Error("Invalid initial props");
       }
       return (<NewArticlePageComponent {...rootProps} />);
+    case "/articles":
+      const listProps = getInitialProps<ListArticlesPageComponentProps>();
+      if (listProps === null) {
+        throw new Error("Invalid initial props");
+      }
+      return (
+        <ListArticlesPageComponent {...listProps} />
+      );
     default:
       if (location.pathname.match(/^\/articles\/\d+/) !== null) {
         const props = getInitialProps<EditArticlePageComponentProps>();
