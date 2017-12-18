@@ -1,7 +1,8 @@
 module Nikki
   module Model
     class Article
-      attr_reader :id, :title, :html_body, :author_id, :created_at, :updated_at
+      attr_reader :id, :author_id, :created_at, :updated_at
+      attr_accessor :title, :html_body
 
       def initialize(id: , title: , html_body: , author_id: , created_at: , updated_at: )
         @id = id

@@ -244,7 +244,12 @@ module Nikki
             halt 404, JSON.generate(errors: ['Article not found'])
           end
 
-          JSON.generate(article.as_json_hash)
+          article.title = parsed_body['title']
+          article.html_body = parsed_body['body']
+
+          updated_article = Nikki::Service::Articles.update(db: db, article: article)
+
+          JSON.generate(updated_article.as_json_hash)
         end
       end
 

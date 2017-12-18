@@ -21,6 +21,17 @@ module Nikki
         row = rows.first
         Nikki::Model::Article.new(**row)
       end
+
+      def self.update(db: , article: )
+        updated_at = Time.now
+        rows = db[:articles].returning.where(id: article.id).update(
+          title: article.title,
+          html_body: article.html_body,
+          updated_at: updated_at,
+        )
+        row = rows.first
+        Nikki::Model::Article.new(**row)
+      end
     end
   end
 end
