@@ -13,7 +13,7 @@ export interface Props {
 
 export class NewArticlePageComponent extends React.PureComponent<Props, {}> {
   public render(): React.ReactNode {
-    const authedUser = this.props.authedUser
+    const authedUser = this.props.authedUser;
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
       (article: Article) => {
