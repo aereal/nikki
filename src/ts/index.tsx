@@ -3,6 +3,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import { API_ORIGIN } from "./endpoints";
+
 interface AuthedUser {
   name: string;
   slug: string;
@@ -151,7 +153,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
   }
 
   private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
-    const req = window.fetch("/articles", {
+    const req = window.fetch(`${API_ORIGIN}/articles`, {
       body: JSON.stringify({
         body: article.body,
         title: article.title,
