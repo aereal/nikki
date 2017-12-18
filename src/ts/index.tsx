@@ -67,6 +67,7 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 interface EditorComponentProps {
   headerHeight: string | number;
   onSubmit: (editingArticle: Article) => void;
+  article: Article;
 }
 interface EditorComponentState {
   title: string;
@@ -76,8 +77,8 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   constructor(props: EditorComponentProps) {
     super(props);
     this.state = {
-      body: "",
-      title: "",
+      body: props.article.body,
+      title: props.article.title,
     };
   }
 
@@ -148,10 +149,11 @@ class RootComponent extends React.PureComponent<RootProps, {}> {
         });
         alert("publish");
       };
+    const newArticle = { body: "", title: "" };
     return (
       <AuthenticationComponent
         authenticated={() => this.props.authedUser !== null }
-        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
+        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={newArticle} />}
         authenticationView={<SignInComponent />} />
     );
   }
