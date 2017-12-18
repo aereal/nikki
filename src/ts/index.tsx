@@ -3,11 +3,12 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { postArticle, updateArticle } from "./actions/articles";
+import { postArticle } from "./actions/articles";
 import { AuthenticationComponent } from "./components/authentication";
 import { EditorComponent } from "./components/editor";
-import { Article, PostedArticle} from "./models/article";
+import { Article } from "./models/article";
 import { AuthedUser } from "./models/user";
+import { EditArticlePageComponent, Props as EditArticlePageComponentProps } from "./pages/editArticle";
 import { SignInComponent } from "./presentations/signIn";
 
 function getInitialProps<T>(): T | null {
@@ -18,27 +19,6 @@ function getInitialProps<T>(): T | null {
   const initialProps = JSON.parse(rawInitialProps);
   return initialProps as T;
 }
-
-interface EditArticlePageComponentProps {
-  authedUser: AuthedUser | null;
-  article: PostedArticle;
-}
-const EditArticlePageComponent: React.SFC<EditArticlePageComponentProps> = ({ authedUser, article }) => {
-  const onSubmit = authedUser === undefined || authedUser === null ?
-    () => {} :
-    (editingArticle: Article) => {
-      updateArticle(authedUser, { ...editingArticle, id: article.id }).then((postedArticle) => {
-        console.log(postedArticle);
-      });
-      alert("publish");
-    };
-  return (
-    <AuthenticationComponent
-      authenticated={() => authedUser !== null }
-      authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={article} />}
-      authenticationView={<SignInComponent />} />
-  );
-};
 
 interface RootProps {
   authedUser: AuthedUser | null;
