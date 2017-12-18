@@ -5,7 +5,15 @@
     ],
     "jsRules": {},
     "rules": {
-      "interface-name": [true, "never-prefix"]
+      "interface-name": [true, "never-prefix"],
+      "no-magic-numbers": true,
+      "no-parameter-reassignment": true,
+      "strict-boolean-expressions": true,
+      "cyclomatic-complexity": [true, 20],
+      "no-default-export": true,
+      "no-duplicate-imports": true,
+      "no-require-imports": true,
+      "no-boolean-literal-compare": true
     },
     "rulesDirectory": []
 }
