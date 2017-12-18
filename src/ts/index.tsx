@@ -20,6 +20,15 @@ interface PostedArticle extends Article {
   id: number;
 }
 
+function getInitialProps<T>(): T | null {
+  const rawInitialProps = document.body.dataset.initialProps;
+  if (rawInitialProps === undefined || rawInitialProps === null) {
+    return null;
+  }
+  const initialProps = JSON.parse(rawInitialProps);
+  return initialProps as T;
+}
+
 export function isPostedArticle(json: any): json is PostedArticle {
   return (json as PostedArticle).id !== undefined;
 }
@@ -130,11 +139,10 @@ interface RootProps {
 }
 class RootComponent extends React.PureComponent<{}, {}> {
   public render() {
-    const rawInitialProps = document.body.dataset.initialProps;
-    if (rawInitialProps === undefined || rawInitialProps === null) {
+    const initialProps = getInitialProps<RootProps>();
+    if (initialProps === null) {
       throw new Error("Invalid initial props");
     }
-    const initialProps: RootProps = JSON.parse(rawInitialProps);
     return this.renderRoot(initialProps);
   }
 
