@@ -4,16 +4,8 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { API_ORIGIN } from "./endpoints";
+import { Article, isPostedArticle , PostedArticle} from "./models/article";
 import { AuthedUser } from "./models/user";
-
-interface Article {
-  title: string;
-  body: string;
-}
-
-interface PostedArticle extends Article {
-  id: number;
-}
 
 function getInitialProps<T>(): T | null {
   const rawInitialProps = document.body.dataset.initialProps;
@@ -22,10 +14,6 @@ function getInitialProps<T>(): T | null {
   }
   const initialProps = JSON.parse(rawInitialProps);
   return initialProps as T;
-}
-
-export function isPostedArticle(json: any): json is PostedArticle {
-  return (json as PostedArticle).id !== undefined;
 }
 
 const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticle> => {
