@@ -125,7 +125,7 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   }
 }
 
-interface InitialProps {
+interface RootProps {
   authedUser: AuthedUser | null;
 }
 class RootComponent extends React.PureComponent<{}, {}> {
@@ -134,11 +134,11 @@ class RootComponent extends React.PureComponent<{}, {}> {
     if (rawInitialProps === undefined || rawInitialProps === null) {
       throw new Error("Invalid initial props");
     }
-    const initialProps: InitialProps = JSON.parse(rawInitialProps);
+    const initialProps: RootProps = JSON.parse(rawInitialProps);
     return this.renderRoot(initialProps);
   }
 
-  private renderRoot(initialProps: InitialProps): React.ReactNode {
+  private renderRoot(initialProps: RootProps): React.ReactNode {
     const authedUser = initialProps.authedUser
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
