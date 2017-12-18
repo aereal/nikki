@@ -22,7 +22,7 @@ const Router: React.SFC<{ location: Location }> = ({ location }) => {
       }
       return (<NewArticlePageComponent {...rootProps} />);
     default:
-      if (location.pathname.match(/^\/articles\/\d+/)) {
+      if (location.pathname.match(/^\/articles\/\d+/) !== null) {
         const props = getInitialProps<EditArticlePageComponentProps>();
         if (props === null) {
           throw new Error("Invalid initial props");
