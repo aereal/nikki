@@ -114,7 +114,7 @@ module Nikki
       end
 
       options '/articles' do
-        headers['allow'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+        headers['Access-Control-Allow-Methods'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
         headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Visitor-Key"
         headers 'Access-Control-Allow-Origin' => '*'
         200
