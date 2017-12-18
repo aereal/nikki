@@ -16,8 +16,7 @@ export const EditArticlePageComponent: React.SFC<Props> = ({ authedUser, article
   const onSubmit = authedUser === undefined || authedUser === null ?
     () => {} : // tslint:disable-line:no-empty
     (editingArticle: Article) => {
-      updateArticle(authedUser, { ...editingArticle, id: article.id })
-        .then((postedArticle) => {}); // tslint:disable-line:no-empty
+      updateArticle(authedUser, { ...editingArticle, id: article.id });
       alert("publish");
     };
   return (

@@ -17,8 +17,7 @@ export class NewArticlePageComponent extends React.PureComponent<Props, {}> {
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} : // tslint:disable-line:no-empty
       (article: Article) => {
-        postArticle(authedUser, article)
-          .then((postedArticle) => {}); // tslint:disable-line:no-empty
+        postArticle(authedUser, article);
         alert("publish");
       };
     const newArticle = { body: "", title: "" };
