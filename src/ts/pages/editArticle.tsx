@@ -14,11 +14,10 @@ export interface Props {
 
 export const EditArticlePageComponent: React.SFC<Props> = ({ authedUser, article }) => {
   const onSubmit = authedUser === undefined || authedUser === null ?
-    () => {} :
+    () => {} : // tslint:disable-line:no-empty
     (editingArticle: Article) => {
-      updateArticle(authedUser, { ...editingArticle, id: article.id }).then((postedArticle) => {
-        console.log(postedArticle);
-      });
+      updateArticle(authedUser, { ...editingArticle, id: article.id })
+        .then((postedArticle) => {}); // tslint:disable-line:no-empty
       alert("publish");
     };
   return (

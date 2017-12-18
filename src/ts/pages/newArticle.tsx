@@ -15,11 +15,10 @@ export class NewArticlePageComponent extends React.PureComponent<Props, {}> {
   public render(): React.ReactNode {
     const authedUser = this.props.authedUser;
     const onSubmit = authedUser === undefined || authedUser === null ?
-      () => {} :
+      () => {} : // tslint:disable-line:no-empty
       (article: Article) => {
-        postArticle(authedUser, article).then((postedArticle) => {
-          console.log(postedArticle);
-        });
+        postArticle(authedUser, article)
+          .then((postedArticle) => {}); // tslint:disable-line:no-empty
         alert("publish");
       };
     const newArticle = { body: "", title: "" };
