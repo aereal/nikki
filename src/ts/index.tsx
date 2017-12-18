@@ -137,17 +137,9 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
 interface RootProps {
   authedUser: AuthedUser | null;
 }
-class RootComponent extends React.PureComponent<{}, {}> {
-  public render() {
-    const initialProps = getInitialProps<RootProps>();
-    if (initialProps === null) {
-      throw new Error("Invalid initial props");
-    }
-    return this.renderRoot(initialProps);
-  }
-
-  private renderRoot(initialProps: RootProps): React.ReactNode {
-    const authedUser = initialProps.authedUser
+class RootComponent extends React.PureComponent<RootProps, {}> {
+  public render(): React.ReactNode {
+    const authedUser = this.props.authedUser
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
       (article: Article) => {
@@ -158,7 +150,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
       };
     return (
       <AuthenticationComponent
-        authenticated={() => initialProps.authedUser !== null }
+        authenticated={() => this.props.authedUser !== null }
         authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
         authenticationView={<SignInComponent />} />
     );
@@ -191,7 +183,11 @@ class RootComponent extends React.PureComponent<{}, {}> {
 const Router: React.SFC<{ location: Location }> = ({ location }) => {
   switch (location.pathname) {
     case "/":
-      return (<RootComponent />);
+      const rootProps = getInitialProps<RootProps>();
+      if (rootProps === null) {
+        throw new Error("Invalid initial props");
+      }
+      return (<RootComponent {...rootProps} />);
     default:
       return null;
   }
