@@ -33,6 +33,29 @@ export function isPostedArticle(json: any): json is PostedArticle {
   return (json as PostedArticle).id !== undefined;
 }
 
+const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticle> => {
+  const req = window.fetch(`${API_ORIGIN}/articles`, {
+    body: JSON.stringify({
+      body: article.body,
+      title: article.title,
+    }),
+    credentials: "same-origin",
+    headers: {
+      "visitor-key": author.authKey,
+    },
+    method: "POST",
+  });
+  return req
+    .then((res) => res.json())
+    .then((json) => {
+      if (isPostedArticle(json)) {
+        return json;
+      } else {
+        throw new Error("Invalid response");
+      }
+    });
+};
+
 interface AuthenticationComponentProps {
   authenticatedView: React.ReactNode;
   authenticationView: React.ReactNode;
@@ -144,7 +167,7 @@ class RootComponent extends React.PureComponent<RootProps, {}> {
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
       (article: Article) => {
-        this.postArticle(authedUser, article).then((postedArticle) => {
+        postArticle(authedUser, article).then((postedArticle) => {
           console.log(postedArticle);
         });
         alert("publish");
@@ -156,29 +179,6 @@ class RootComponent extends React.PureComponent<RootProps, {}> {
         authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={newArticle} />}
         authenticationView={<SignInComponent />} />
     );
-  }
-
-  private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
-    const req = window.fetch(`${API_ORIGIN}/articles`, {
-      body: JSON.stringify({
-        body: article.body,
-        title: article.title,
-      }),
-      credentials: "same-origin",
-      headers: {
-        "visitor-key": author.authKey,
-      },
-      method: "POST",
-    });
-    return req
-      .then((res) => res.json())
-      .then((json) => {
-        if (isPostedArticle(json)) {
-          return json;
-        } else {
-          throw new Error("Invalid response");
-        }
-      });
   }
 }
 
