@@ -20,9 +20,64 @@ interface PostedArticle extends Article {
   id: number;
 }
 
+function getInitialProps<T>(): T | null {
+  const rawInitialProps = document.body.dataset.initialProps;
+  if (rawInitialProps === undefined || rawInitialProps === null) {
+    return null;
+  }
+  const initialProps = JSON.parse(rawInitialProps);
+  return initialProps as T;
+}
+
 export function isPostedArticle(json: any): json is PostedArticle {
   return (json as PostedArticle).id !== undefined;
 }
+
+const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticle> => {
+  const req = window.fetch(`${API_ORIGIN}/articles`, {
+    body: JSON.stringify({
+      body: article.body,
+      title: article.title,
+    }),
+    credentials: "same-origin",
+    headers: {
+      "visitor-key": author.authKey,
+    },
+    method: "POST",
+  });
+  return req
+    .then((res) => res.json())
+    .then((json) => {
+      if (isPostedArticle(json)) {
+        return json;
+      } else {
+        throw new Error("Invalid response");
+      }
+    });
+};
+
+const updateArticle = (author: AuthedUser, article: PostedArticle): Promise<PostedArticle> => {
+  const req = window.fetch(`https://api.nikki.dev/articles/${article.id}`, {
+    body: JSON.stringify({
+      body: article.body,
+      title: article.title,
+    }),
+    credentials: "same-origin",
+    headers: {
+      "visitor-key": author.authKey,
+    },
+    method: "PUT",
+  });
+  return req
+    .then((res) => res.json())
+    .then((json) => {
+      if (isPostedArticle(json)) {
+        return json;
+      } else {
+        throw new Error("Invalid response");
+      }
+    });
+};
 
 interface AuthenticationComponentProps {
   authenticatedView: React.ReactNode;
@@ -58,6 +113,7 @@ class SignInComponent extends React.PureComponent<{}, {}> {
 interface EditorComponentProps {
   headerHeight: string | number;
   onSubmit: (editingArticle: Article) => void;
+  article: Article;
 }
 interface EditorComponentState {
   title: string;
@@ -67,8 +123,8 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   constructor(props: EditorComponentProps) {
     super(props);
     this.state = {
-      body: "",
-      title: "",
+      body: props.article.body,
+      title: props.article.title,
     };
   }
 
@@ -125,62 +181,75 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   }
 }
 
-interface InitialProps {
+interface EditArticlePageComponentProps {
+  authedUser: AuthedUser | null;
+  article: PostedArticle;
+}
+const EditArticlePageComponent: React.SFC<EditArticlePageComponentProps> = ({ authedUser, article }) => {
+  const onSubmit = authedUser === undefined || authedUser === null ?
+    () => {} :
+    (editingArticle: Article) => {
+      updateArticle(authedUser, { ...editingArticle, id: article.id }).then((postedArticle) => {
+        console.log(postedArticle);
+      });
+      alert("publish");
+    };
+  return (
+    <AuthenticationComponent
+      authenticated={() => authedUser !== null }
+      authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={article} />}
+      authenticationView={<SignInComponent />} />
+  );
+};
+
+interface RootProps {
   authedUser: AuthedUser | null;
 }
-class RootComponent extends React.PureComponent<{}, {}> {
-  public render() {
-    const rawInitialProps = document.body.dataset.initialProps;
-    if (rawInitialProps === undefined || rawInitialProps === null) {
-      throw new Error("Invalid initial props");
-    }
-    const initialProps: InitialProps = JSON.parse(rawInitialProps);
-    const authedUser = initialProps.authedUser
+class RootComponent extends React.PureComponent<RootProps, {}> {
+  public render(): React.ReactNode {
+    const authedUser = this.props.authedUser
     const onSubmit = authedUser === undefined || authedUser === null ?
       () => {} :
       (article: Article) => {
-        this.postArticle(authedUser, article).then((postedArticle) => {
+        postArticle(authedUser, article).then((postedArticle) => {
           console.log(postedArticle);
         });
         alert("publish");
       };
+    const newArticle = { body: "", title: "" };
     return (
       <AuthenticationComponent
-        authenticated={() => initialProps.authedUser !== null }
-        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} />}
+        authenticated={() => this.props.authedUser !== null }
+        authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={newArticle} />}
         authenticationView={<SignInComponent />} />
     );
   }
-
-  private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
-    const req = window.fetch(`${API_ORIGIN}/articles`, {
-      body: JSON.stringify({
-        body: article.body,
-        title: article.title,
-      }),
-      credentials: "same-origin",
-      headers: {
-        "visitor-key": author.authKey,
-      },
-      method: "POST",
-    });
-    return req
-      .then((res) => res.json())
-      .then((json) => {
-        if (isPostedArticle(json)) {
-          return json;
-        } else {
-          throw new Error("Invalid response");
-        }
-      });
-  }
 }
+
+const Router: React.SFC<{ location: Location }> = ({ location }) => {
+  switch (location.pathname) {
+    case "/":
+      const rootProps = getInitialProps<RootProps>();
+      if (rootProps === null) {
+        throw new Error("Invalid initial props");
+      }
+      return (<RootComponent {...rootProps} />);
+    default:
+      if (location.pathname.match(/^\/articles\/\d+/)) {
+        const props = getInitialProps<EditArticlePageComponentProps>();
+        if (props === null) {
+          throw new Error("Invalid initial props");
+        }
+        return (<EditArticlePageComponent {...props} />);
+      } else {
+        return null;
+      }
+  }
+};
 
 const entrypoint = document.getElementById("entrypoint");
 
 ReactDOM.render(
-  <>
-    <RootComponent />
-  </>,
+  <Router location={window.location} />,
   entrypoint,
 );
