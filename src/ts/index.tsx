@@ -4,12 +4,7 @@ import * as React from "react";
 import * as ReactDOM from "react-dom";
 
 import { API_ORIGIN } from "./endpoints";
-
-interface AuthedUser {
-  name: string;
-  slug: string;
-  authKey: string;
-}
+import { AuthedUser } from "./models/user";
 
 interface Article {
   title: string;
