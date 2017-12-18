@@ -151,7 +151,7 @@ class RootComponent extends React.PureComponent<{}, {}> {
   }
 
   private postArticle(author: AuthedUser, article: Article): Promise<PostedArticle> {
-    const req = window.fetch("/articles", {
+    const req = window.fetch("https://api.nikki.dev/articles", {
       body: JSON.stringify({
         body: article.body,
         title: article.title,
