@@ -164,6 +164,28 @@ module Nikki
             key :visitor_key, []
           end
         end
+
+        operation :put do
+          key :summary, 'Update an article'
+          parameter do
+            key :required, true
+            key :description, 'id of the article'
+            key :name, :articleId
+            key :in, :path
+          end
+          response 200 do
+            key :description, 'OK'
+            schema do
+              key :'$ref', :Article
+            end
+          end
+          response 401 do
+            key :description, 'Authentication failed'
+          end
+          security do
+            key :visitor_key, []
+          end
+        end
       end
 
       options '/articles/:id' do
@@ -177,6 +199,33 @@ module Nikki
         headers 'Access-Control-Allow-Origin' => '*'
 
         validated_api_request(:get, :'/articles/{articleId}') do |parsed_body|
+          visitor_key = request.get_header('HTTP_VISITOR_KEY')
+
+          unless visitor_key
+            halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
+          end
+
+          db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+          authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
+
+          unless authed_user
+            halt 401, JSON.generate(errors: ['Unauthorized; visitor-key is invalid'])
+          end
+
+          article = Nikki::Service::Articles.find(db: db, article_id: params[:id])
+          unless article
+            halt 404, JSON.generate(errors: ['Article not found'])
+          end
+
+          JSON.generate(article.as_json_hash)
+        end
+      end
+
+      put '/articles/:id' do
+        content_type 'application/json'
+        headers 'Access-Control-Allow-Origin' => '*'
+
+        validated_api_request(:put, :'/articles/{articleId}') do |parsed_body|
           visitor_key = request.get_header('HTTP_VISITOR_KEY')
 
           unless visitor_key

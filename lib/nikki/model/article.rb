@@ -17,6 +17,7 @@ module Nikki
           id: self.id,
           title: self.title,
           html_body: self.html_body,
+          body: self.html_body, # TODO
           created_at: self.created_at.to_s,
           updated_at: self.updated_at.to_s,
         }

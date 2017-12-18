@@ -56,6 +56,29 @@ const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticl
     });
 };
 
+const updateArticle = (author: AuthedUser, article: PostedArticle): Promise<PostedArticle> => {
+  const req = window.fetch(`https://api.nikki.dev/articles/${article.id}`, {
+    body: JSON.stringify({
+      body: article.body,
+      title: article.title,
+    }),
+    credentials: "same-origin",
+    headers: {
+      "visitor-key": author.authKey,
+    },
+    method: "PUT",
+  });
+  return req
+    .then((res) => res.json())
+    .then((json) => {
+      if (isPostedArticle(json)) {
+        return json;
+      } else {
+        throw new Error("Invalid response");
+      }
+    });
+};
+
 interface AuthenticationComponentProps {
   authenticatedView: React.ReactNode;
   authenticationView: React.ReactNode;
@@ -158,6 +181,27 @@ class EditorComponent extends React.PureComponent<EditorComponentProps, EditorCo
   }
 }
 
+interface EditArticlePageComponentProps {
+  authedUser: AuthedUser | null;
+  article: PostedArticle;
+}
+const EditArticlePageComponent: React.SFC<EditArticlePageComponentProps> = ({ authedUser, article }) => {
+  const onSubmit = authedUser === undefined || authedUser === null ?
+    () => {} :
+    (editingArticle: Article) => {
+      updateArticle(authedUser, { ...editingArticle, id: article.id }).then((postedArticle) => {
+        console.log(postedArticle);
+      });
+      alert("publish");
+    };
+  return (
+    <AuthenticationComponent
+      authenticated={() => authedUser !== null }
+      authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={article} />}
+      authenticationView={<SignInComponent />} />
+  );
+};
+
 interface RootProps {
   authedUser: AuthedUser | null;
 }
@@ -191,7 +235,15 @@ const Router: React.SFC<{ location: Location }> = ({ location }) => {
       }
       return (<RootComponent {...rootProps} />);
     default:
-      return null;
+      if (location.pathname.match(/^\/articles\/\d+/)) {
+        const props = getInitialProps<EditArticlePageComponentProps>();
+        if (props === null) {
+          throw new Error("Invalid initial props");
+        }
+        return (<EditArticlePageComponent {...props} />);
+      } else {
+        return null;
+      }
   }
 };
 
