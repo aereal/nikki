@@ -8,6 +8,7 @@ import { EditorComponent } from "./components/editor";
 import { API_ORIGIN } from "./endpoints";
 import { Article, isPostedArticle , PostedArticle} from "./models/article";
 import { AuthedUser } from "./models/user";
+import { SignInComponent } from "./presentations/signIn";
 
 function getInitialProps<T>(): T | null {
   const rawInitialProps = document.body.dataset.initialProps;
@@ -63,21 +64,6 @@ const updateArticle = (author: AuthedUser, article: PostedArticle): Promise<Post
       }
     });
 };
-
-class SignInComponent extends React.PureComponent<{}, {}> {
-  public render() {
-    return (
-      <div className="row valign-wrapper" style={{minHeight: "100vh"}}>
-        <div className="col s12">
-          <a className="waves-effect waves-light btn-large" href="/auth/google_oauth2">
-            <i className="material-icons left">input</i>
-            Sign in with Google
-          </a>
-        </div>
-      </div>
-    );
-  }
-}
 
 interface EditArticlePageComponentProps {
   authedUser: AuthedUser | null;
