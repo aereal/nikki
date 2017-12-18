@@ -180,11 +180,18 @@ class RootComponent extends React.PureComponent<{}, {}> {
   }
 }
 
+const Router: React.SFC<{ location: Location }> = ({ location }) => {
+  switch (location.pathname) {
+    case "/":
+      return (<RootComponent />);
+    default:
+      return null;
+  }
+};
+
 const entrypoint = document.getElementById("entrypoint");
 
 ReactDOM.render(
-  <>
-    <RootComponent />
-  </>,
+  <Router location={window.location} />,
   entrypoint,
 );
