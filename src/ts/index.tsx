@@ -3,6 +3,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import { AuthenticationComponent } from "./components/authentication";
 import { API_ORIGIN } from "./endpoints";
 import { Article, isPostedArticle , PostedArticle} from "./models/article";
 import { AuthedUser } from "./models/user";
@@ -61,22 +62,6 @@ const updateArticle = (author: AuthedUser, article: PostedArticle): Promise<Post
       }
     });
 };
-
-interface AuthenticationComponentProps {
-  authenticatedView: React.ReactNode;
-  authenticationView: React.ReactNode;
-  authenticated: () => boolean;
-}
-class AuthenticationComponent extends React.PureComponent<AuthenticationComponentProps, {}> {
-  public render() {
-    const { authenticated, authenticationView, authenticatedView } = this.props;
-    if (authenticated()) {
-      return authenticatedView;
-    } else {
-      return authenticationView;
-    }
-  }
-}
 
 class SignInComponent extends React.PureComponent<{}, {}> {
   public render() {
