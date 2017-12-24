@@ -103,6 +103,18 @@ module Nikki
         end
       end
 
+      ArticleUpdateInputType = GraphQL::InputObjectType.define do
+        name 'ArticleUpdateInputType'
+        description 'properties for updating an article'
+
+        argument :title, types.String do
+          description 'Title of the article'
+        end
+        argument :body, types.String do
+          description 'Body of the article'
+        end
+      end
+
       QueryType = GraphQL::ObjectType.define do
         name 'Query'
         description 'root query'
@@ -133,6 +145,29 @@ module Nikki
                 body: args[:article][:body],
                 author: visitor,
               )
+            else
+              GraphQL::ExecutionError.new("Authentication required")
+            end
+          end
+        end
+
+        field :updateArticle, ArticleType do
+          description 'update the article'
+          argument :articleId, !types.ID
+          argument :article, ArticleUpdateInputType
+          resolve ->(t, args, ctx) do
+            if visitor = ctx[:visitor]
+              if article = Nikki::Service::Articles.find(db: ctx[:db_connection], article_id: args[:articleId])
+                article.title = args[:article][:title] if args[:article][:title]
+                article.html_body = args[:article][:body] if args[:article][:body]
+
+                Nikki::Service::Articles.update(
+                  db: ctx[:db_connection],
+                  article: article,
+                )
+              else
+                GraphQL::ExecutionError.new("Article not found")
+              end
             else
               GraphQL::ExecutionError.new("Authentication required")
             end
