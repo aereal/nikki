@@ -1,6 +1,7 @@
 require 'graphql'
 require 'json-schema'
 require 'sequel'
+require 'set'
 require 'sinatra/base'
 require 'swagger/blocks'
 
@@ -43,6 +44,39 @@ module Nikki
         end
       end
 
+      class LazySearchUser
+        def initialize(query_ctx, user_id)
+          @user_id = user_id
+          @db_connection = query_ctx[:db_connection]
+          @state = query_ctx[:lazy_search_user] ||= {
+            pending_ids: Set.new,
+            loaded_models: {},
+          }
+          @state[:pending_ids] << user_id
+        end
+
+        def user
+          loaded = @state[:loaded_models][@user_id]
+          if !loaded
+            pending_ids = @state[:pending_ids].to_a
+            users = @db_connection[:users].where(id: pending_ids).to_a
+            users.each do |row|
+              @state[:loaded_models][row[:id]] = Nikki::Model::User.new(**row)
+            end
+            @state[:pending_ids].clear
+            loaded = @state[:loaded_models][@user_id]
+          end
+          loaded
+        end
+      end
+
+      UserType = GraphQL::ObjectType.define do
+        name 'User'
+        description 'blog user'
+        field :id, types.ID
+        field :name, types.String
+      end
+
       ArticleType = GraphQL::ObjectType.define do
         name 'Article'
         description 'blog post'
@@ -50,6 +84,11 @@ module Nikki
         field :title, !types.String
         field :created_at, types.String
         field :updated_at, types.String
+        field :author, UserType do
+          resolve ->(obj, args, ctx) do
+            LazySearchUser.new(ctx, obj.author_id)
+          end
+        end
       end
 
       QueryType = GraphQL::ObjectType.define do
@@ -70,6 +109,7 @@ module Nikki
 
       Schema = GraphQL::Schema.define do
         query QueryType
+        lazy_resolve(LazySearchUser, :user)
       end
 
       options '/graphql' do
@@ -83,7 +123,10 @@ module Nikki
           headers 'Access-Control-Allow-Origin' => '*'
           content_type :json
           query = params[:query] || JSON.parse(request.body.read)['query']
-          result = Schema.execute(query)
+          context = {
+            db_connection: Nikki::Infra::Database.connection,
+          }
+          result = Schema.execute(query, context: context)
           JSON.generate(result.to_h)
         end
       end
