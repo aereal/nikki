@@ -82,6 +82,11 @@ module Nikki
         description 'blog post'
         field :id, types.ID
         field :title, !types.String
+        field :body, !types.String do
+          resolve ->(obj, args, ctx) do
+            obj.html_body
+          end
+        end
         field :created_at, types.String
         field :updated_at, types.String
         field :author, UserType do
