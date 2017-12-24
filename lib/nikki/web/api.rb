@@ -122,9 +122,22 @@ module Nikki
         send(method, '/graphql') do
           headers 'Access-Control-Allow-Origin' => '*'
           content_type :json
+
+          db = Nikki::Infra::Database.connection
+
+          visitor =
+            begin
+              if visitor_key = request.get_header('HTTP_VISITOR_KEY')
+                Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
+              else
+                nil
+              end
+            end
+
           query = params[:query] || JSON.parse(request.body.read)['query']
           context = {
-            db_connection: Nikki::Infra::Database.connection,
+            db_connection: db,
+            visitor: visitor,
           }
           result = Schema.execute(query, context: context)
           JSON.generate(result.to_h)
