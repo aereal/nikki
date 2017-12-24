@@ -42,6 +42,15 @@ module Nikki
         provider :google_oauth2, ENV['GOOGLE_OAUTH_CLIENT_ID'], ENV['GOOGLE_OAUTH_CLIENT_SECRET']
       end
 
+      get '/graphql' do
+        db = Nikki::Infra::Database.connection
+        authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])
+        initial_props = {
+          authedUser: authed_user.nil? ? nil : { name: authed_user.name, slug: authed_user.slug, authKey: authed_user.auth_key, },
+        }
+        slim :graphiql, locals: { initial_props: JSON.generate(initial_props) }
+      end
+
       get '/' do
         db = Nikki::Infra::Database.connection
         authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])

@@ -1,6 +1,8 @@
+import GraphiQL = require("graphiql");
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import { API_ORIGIN } from "./endpoints";
 import { EditArticlePageComponent, Props as EditArticlePageComponentProps } from "./pages/editArticle";
 import { NewArticlePageComponent, Props as NewArticlePageComponentProps } from "./pages/newArticle";
 
@@ -21,6 +23,19 @@ const Router: React.SFC<{ location: Location }> = ({ location }) => {
         throw new Error("Invalid initial props");
       }
       return (<NewArticlePageComponent {...rootProps} />);
+    case "/graphql":
+      const fetcher = (params: any): Promise<any> => {
+        return window.fetch(`${API_ORIGIN}/graphql`, {
+          body: JSON.stringify(params),
+          headers: {
+            "content-type": "application/json",
+          },
+          method: "post",
+        }).then((res) => res.json());
+      };
+      return (
+        <GraphiQL fetcher={fetcher} />
+      );
     default:
       if (location.pathname.match(/^\/articles\/\d+/) !== null) {
         const props = getInitialProps<EditArticlePageComponentProps>();

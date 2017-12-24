@@ -1,9 +1,11 @@
+require 'graphql'
 require 'json-schema'
 require 'sequel'
 require 'sinatra/base'
 require 'swagger/blocks'
 
 require 'nikki/infra/database'
+require 'nikki/model/article'
 require 'nikki/service/articles'
 require 'nikki/service/user'
 
@@ -38,6 +40,51 @@ module Nikki
             content_type 'application/json'
             halt(422, JSON.generate(errors: errors.map(&:to_s)))
           end
+        end
+      end
+
+      ArticleType = GraphQL::ObjectType.define do
+        name 'Article'
+        description 'blog post'
+        field :id, types.ID
+        field :title, !types.String
+        field :created_at, types.String
+        field :updated_at, types.String
+      end
+
+      QueryType = GraphQL::ObjectType.define do
+        name 'Query'
+        description 'root query'
+
+        field :articles do
+          type types[ArticleType]
+          description 'search articles'
+          argument :limit, types.Int
+          resolve ->(obj, args, ctx) {
+            db = Nikki::Infra::Database.connection
+            rows = db[:articles].limit(args['limit'])
+            rows.map {|r| Nikki::Model::Article.new(**r) }
+          }
+        end
+      end
+
+      Schema = GraphQL::Schema.define do
+        query QueryType
+      end
+
+      options '/graphql' do
+        headers['Access-Control-Allow-Methods'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
+        headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Visitor-Key"
+        headers 'Access-Control-Allow-Origin' => '*'
+        200
+      end
+      [:get, :post].each do |method|
+        send(method, '/graphql') do
+          headers 'Access-Control-Allow-Origin' => '*'
+          content_type :json
+          query = params[:query] || JSON.parse(request.body.read)['query']
+          result = Schema.execute(query)
+          JSON.generate(result.to_h)
         end
       end
 
