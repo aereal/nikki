@@ -91,6 +91,18 @@ module Nikki
         end
       end
 
+      ArticleInputType = GraphQL::InputObjectType.define do
+        name 'ArticleInputType'
+        description 'properties for creating an article'
+
+        argument :title, !types.String do
+          description 'Title of the article'
+        end
+        argument :body, !types.String do
+          description 'Body of the article'
+        end
+      end
+
       QueryType = GraphQL::ObjectType.define do
         name 'Query'
         description 'root query'
@@ -107,8 +119,30 @@ module Nikki
         end
       end
 
+      MutationType = GraphQL::ObjectType.define do
+        name 'Mutation'
+
+        field :postArticle, ArticleType do
+          description 'post new article'
+          argument :article, ArticleInputType
+          resolve ->(t, args, ctx) do
+            if visitor = ctx[:visitor]
+              Nikki::Service::Articles.post(
+                db: ctx[:db_connection],
+                title: args[:article][:title],
+                body: args[:article][:body],
+                author: visitor,
+              )
+            else
+              GraphQL::ExecutionError.new("Authentication required")
+            end
+          end
+        end
+      end
+
       Schema = GraphQL::Schema.define do
         query QueryType
+        mutation MutationType
         lazy_resolve(LazySearchUser, :user)
       end
 
