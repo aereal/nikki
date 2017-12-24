@@ -127,7 +127,7 @@ module Nikki
         field :articles do
           type types[ArticleType]
           description 'search articles'
-          argument :limit, types.Int
+          argument :limit, !types.Int
           resolve ->(obj, args, ctx) {
             db = Nikki::Infra::Database.connection
             rows = db[:articles].limit(args['limit'])
