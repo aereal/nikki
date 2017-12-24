@@ -6,6 +6,7 @@ GEM
     backports (3.10.3)
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
+    graphql (1.7.7)
     hashie (3.5.6)
     json-schema (2.8.0)
       addressable (>= 2.4)
@@ -53,7 +54,6 @@ GEM
     slim (3.0.9)
       temple (>= 0.7.6, < 0.9)
       tilt (>= 1.3.3, < 2.1)
-    swagger-blocks (2.0.2)
     temple (0.8.0)
     tilt (2.0.8)
 
@@ -61,6 +61,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  graphql
   json-schema
   omniauth
   omniauth-google-oauth2
@@ -70,7 +71,6 @@ DEPENDENCIES
   sinatra
   sinatra-contrib
   slim
-  swagger-blocks
 
 BUNDLED WITH
    1.16.0
