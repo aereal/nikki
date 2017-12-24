@@ -6,6 +6,7 @@ GEM
     backports (3.10.3)
     faraday (0.12.2)
       multipart-post (>= 1.2, < 3)
+    graphql (1.7.7)
     hashie (3.5.6)
     json-schema (2.8.0)
       addressable (>= 2.4)
@@ -61,6 +62,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  graphql
   json-schema
   omniauth
   omniauth-google-oauth2
