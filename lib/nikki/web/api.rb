@@ -207,11 +207,12 @@ module Nikki
             JSON.parse(request.body.read) :
             params
           query = params_hash['query']
+          variables = params_hash['variables'] || {}
           context = {
             db_connection: db,
             visitor: visitor,
           }
-          result = Schema.execute(query, context: context)
+          result = Schema.execute(query, context: context, variables: variables)
           JSON.generate(result.to_h)
         end
       end
