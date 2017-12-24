@@ -10,4 +10,3 @@ gem 'sequel'
 gem 'sinatra'
 gem 'sinatra-contrib', require: nil
 gem 'slim'
-gem 'swagger-blocks'
