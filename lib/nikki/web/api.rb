@@ -203,7 +203,10 @@ module Nikki
               end
             end
 
-          query = params[:query] || JSON.parse(request.body.read)['query']
+          params_hash = %r{\Aapplication/json(?:\b|\z)} === request.media_type ?
+            JSON.parse(request.body.read) :
+            params
+          query = params_hash['query']
           context = {
             db_connection: db,
             visitor: visitor,
