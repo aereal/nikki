@@ -41,7 +41,7 @@ SET default_with_oids = false;
 CREATE TABLE articles (
     id bigint NOT NULL,
     title character varying(255) NOT NULL,
-    html_body text NOT NULL,
+    body text NOT NULL,
     author_id bigint,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL

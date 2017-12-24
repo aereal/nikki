@@ -61,11 +61,7 @@ module Nikki
         description 'blog post'
         field :id, types.ID
         field :title, !types.String
-        field :body, !types.String do
-          resolve ->(obj, args, ctx) do
-            obj.html_body
-          end
-        end
+        field :body, !types.String
         field :created_at, types.String
         field :updated_at, types.String
         field :author, UserType do
@@ -143,7 +139,7 @@ module Nikki
             if visitor = ctx[:visitor]
               if article = Nikki::Service::Articles.find(db: ctx[:db_connection], article_id: args[:articleId])
                 article.title = args[:article][:title] if args[:article][:title]
-                article.html_body = args[:article][:body] if args[:article][:body]
+                article.body = args[:article][:body] if args[:article][:body]
 
                 Nikki::Service::Articles.update(
                   db: ctx[:db_connection],

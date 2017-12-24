@@ -2,12 +2,12 @@ module Nikki
   module Model
     class Article
       attr_reader :id, :author_id, :created_at, :updated_at
-      attr_accessor :title, :html_body
+      attr_accessor :title, :body
 
-      def initialize(id: , title: , html_body: , author_id: , created_at: , updated_at: )
+      def initialize(id: , title: , body: , author_id: , created_at: , updated_at: )
         @id = id
         @title = title
-        @html_body = html_body
+        @body = body
         @author_id = author_id
         @created_at = created_at
         @updated_at = updated_at
@@ -17,8 +17,7 @@ module Nikki
         {
           id: self.id,
           title: self.title,
-          html_body: self.html_body,
-          body: self.html_body, # TODO
+          body: self.body,
           created_at: self.created_at.to_s,
           updated_at: self.updated_at.to_s,
         }
