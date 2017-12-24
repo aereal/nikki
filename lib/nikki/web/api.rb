@@ -3,6 +3,7 @@ require 'sequel'
 require 'sinatra/base'
 require 'swagger/blocks'
 
+require 'nikki/infra/database'
 require 'nikki/service/articles'
 require 'nikki/service/user'
 
@@ -130,7 +131,7 @@ module Nikki
             halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
           end
 
-          db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+          db = Nikki::Infra::Database.connection
           authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
 
           unless authed_user
@@ -205,7 +206,7 @@ module Nikki
             halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
           end
 
-          db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+          db = Nikki::Infra::Database.connection
           authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
 
           unless authed_user
@@ -232,7 +233,7 @@ module Nikki
             halt 401, JSON.generate(errors: ['Unauthorized; no visitor-key header given'])
           end
 
-          db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+          db = Nikki::Infra::Database.connection
           authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
 
           unless authed_user

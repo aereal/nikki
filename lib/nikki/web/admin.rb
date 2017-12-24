@@ -6,6 +6,7 @@ require 'sequel'
 require 'sinatra/base'
 require 'slim'
 
+require 'nikki/infra/database'
 require 'nikki/service/articles'
 require 'nikki/service/user'
 
@@ -42,7 +43,7 @@ module Nikki
       end
 
       get '/' do
-        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+        db = Nikki::Infra::Database.connection
         authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])
         initial_props = {
           authedUser: authed_user.nil? ? nil : { name: authed_user.name, slug: authed_user.slug, authKey: authed_user.auth_key, },
@@ -51,7 +52,7 @@ module Nikki
       end
 
       get '/articles/:id' do
-        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+        db = Nikki::Infra::Database.connection
         authed_user = Nikki::Service::User.find_by_auth_key(db: db, auth_key: session[:auth_key])
         article = Nikki::Service::Articles.find(db: db, article_id: params[:id])
         initial_props = {
@@ -63,7 +64,7 @@ module Nikki
 
       get '/auth/:provider/callback' do
         auth = env['omniauth.auth']
-        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+        db = Nikki::Infra::Database.connection
         auth_key = Digest::SHA256.hexdigest("provider:google:uid:#{auth.uid}")
         user = Nikki::Service::User.find_or_register_by(db: db, name: auth[:info][:name], slug: auth[:info][:email], auth_key: auth_key)
         session[:auth_key] = user.auth_key
@@ -72,7 +73,7 @@ module Nikki
 
       post '/auth/:provider/callback' do
         auth = env['omniauth.auth']
-        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki")
+        db = Nikki::Infra::Database.connection
         auth_key = Digest::SHA256.hexdigest("provider:google:uid:#{auth.uid}")
         user = Nikki::Service::User.find_or_register_by(db: db, name: auth[:info][:name], slug: auth[:info][:email], auth_key: auth_key)
         session[:auth_key] = user.auth_key
