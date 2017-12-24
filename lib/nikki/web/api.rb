@@ -159,6 +159,18 @@ module Nikki
         end
       end
 
+      module MutationRejector
+        def self.before_query(query)
+          if query.mutation?
+            raise "Mutation not allowed"
+          end
+        end
+
+        def self.after_query(query)
+          # no-op
+        end
+      end
+
       Schema = GraphQL::Schema.define do
         query QueryType
         mutation MutationType
@@ -196,7 +208,11 @@ module Nikki
             db_connection: db,
             visitor: visitor,
           }
-          result = Schema.execute(query, context: context, variables: variables)
+          schema = Schema
+          if request.get?
+            schema.instrument(:query, MutationRejector)
+          end
+          result = schema.execute(query, context: context, variables: variables)
           JSON.generate(result.to_h)
         end
       end
