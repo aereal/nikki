@@ -8,11 +8,9 @@ threads 0, 6
 preload_app!
 
 on_worker_boot do
-  warn '---> puma worker started'
   Nikki::Infra::Database.connect!
 end
 
 on_worker_shutdown do
-  warn '---> puma worker died'
   Nikki::Infra::Database.disconnect!
 end
