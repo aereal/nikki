@@ -8,11 +8,21 @@ threads 0, 6
 preload_app!
 
 on_worker_boot do
-  warn '---> puma worker started'
-  Nikki::Infra::Database.connect!
+  tried = 0
+  max_tries = 3
+  wait_time = 1
+  connected = false
+  while !connected && tried < max_tries do
+    begin
+      Nikki::Infra::Database.connect!
+      connected = true
+    rescue Sequel::DatabaseConnectionError
+      sleep wait_time
+      wait_time = wait_time * 2
+    end
+  end
 end
 
 on_worker_shutdown do
-  warn '---> puma worker died'
   Nikki::Infra::Database.disconnect!
 end
