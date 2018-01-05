@@ -10,6 +10,11 @@ abort "Invalid environment variables; errors: #{errors}" unless errors.empty?
 
 require 'nikki/web/admin'
 require 'nikki/web/api'
+require 'nikki/web/public'
+
+map 'https://nikki-blog.dev/' do
+  run Nikki::Web::Public
+end
 
 map 'https://admin.nikki.dev/' do
   run Nikki::Web::Admin
