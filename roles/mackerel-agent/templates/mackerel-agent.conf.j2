@@ -1,0 +1,7 @@
+apikey = "{{ mackerel_agent.api_key }}"
+
+[plugin.metrics.linux]
+command = "/usr/bin/mackerel-plugin-linux"
+
+[plugin.metrics.postgres]
+command = "/usr/bin/mackerel-plugin-postgres -user=readwrite -password=readwrite -database=nikki_production"
