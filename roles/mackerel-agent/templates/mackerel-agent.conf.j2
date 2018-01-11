@@ -4,4 +4,4 @@ apikey = "{{ mackerel_agent.api_key }}"
 command = "/usr/bin/mackerel-plugin-linux"
 
 [plugin.metrics.postgres]
-command = "/usr/bin/mackerel-plugin-postgres -user=readwrite -password=readwrite -database=nikki_production"
+command = "/usr/bin/mackerel-plugin-postgres -user={{ postgresql.user }} -password={{ postgresql.password }} -database={{ postgresql.database }}"
