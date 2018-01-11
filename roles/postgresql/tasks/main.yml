@@ -1,0 +1,63 @@
+---
+
+-
+  name: install postgresql
+  apt:
+    name: postgresql
+    state: present
+
+-
+  name: change default authentication method
+  lineinfile:
+    path: /etc/postgresql/9.6/main/pg_hba.conf
+    regexp: '^local\s*all\s*all'
+    line: "local all all trust"
+    owner: postgres
+    group: postgres
+  register: result_change_pg_default_auth
+
+-
+  name: change postgres user authentication method
+  lineinfile:
+    path: /etc/postgresql/9.6/main/pg_hba.conf
+    regexp: '^local\s+all\s+postgres'
+    line: ""
+    owner: postgres
+    group: postgres
+  register: result_change_pg_postgres_auth
+
+-
+  name: restart postgresql
+  service:
+    name: postgresql
+    state: restarted
+  when: result_change_pg_default_auth.changed or result_change_pg_postgres_auth.changed
+
+-
+  name: start postgresql
+  service:
+    name: postgresql
+    state: started
+
+-
+  name: install psycopg2
+  apt:
+    name: python-psycopg2
+    state: latest
+
+-
+  name: add readwrite role
+  postgresql_user:
+    name: readwrite
+    password: readwrite
+    encrypted: yes
+    role_attr_flags: "NOSUPERUSER,NOCREATEROLE,CREATEDB"
+    login_user: postgres
+    state: present
+
+-
+  name: create database
+  postgresql_db:
+    encoding: UTF8
+    name: nikki_production
+    state: present
