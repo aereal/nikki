@@ -1,5 +1,5 @@
 pg-data
 node_modules
-assets/dist/
-etc/certs
-assets/css
+ui/assets/dist/
+proxy/etc/certs
+ui/assets/css
