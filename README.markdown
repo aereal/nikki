@@ -13,7 +13,8 @@ sudo cat <<EOS >> /etc/hosts
 127.0.0.1\tapi.nikki.dev
 127.0.0.1\tadmin.nikki.dev
 EOS
-open etc/certs/ca.crt # Always trust
+
+sudo security add-trusted-cert -d -k /Library/Keychains/System.keychain proxy/etc/certs/ca.crt
 ```
 
 # See also
