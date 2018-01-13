@@ -34,6 +34,10 @@ module Nikki
         also_reload "#{root}/lib/**/*.rb"
       end
 
+      not_found do
+        slim :not_found, locals: { page_title: 'Not found', site_title: 'Nikki' }
+      end
+
       get '/' do
         pager_token = params[:page]
         pager = Nikki::Model::Pager.new_from_token(pager_token || '')
@@ -42,11 +46,28 @@ module Nikki
         pager = Nikki::Service::Articles.search(db: db, limit: 10, pager: pager)
         formatted_articles = pager[:articles].map {|a| Nikki::Service::Articles.format_body(article: a) }
         locals = {
-          page_title: 'Nikki',
+          page_title: nil,
+          site_title: 'Nikki',
           articles: formatted_articles,
           next_page_token: pager[:next_page_token],
         }
         slim :index, locals: locals
+      end
+
+      get '/*' do
+        logger.info("path_info = #{request.path_info}")
+        db = Nikki::Infra::Database.connection
+        if article = Nikki::Service::Articles.find_by_path(db: db, path: request.path_info)
+          formatted_article = Nikki::Service::Articles.format_body(article: article)
+          locals = {
+            article: formatted_article,
+            page_title: formatted_article.title,
+            site_title: 'Nikki',
+          }
+          slim :permalink, locals: locals
+        else
+          halt 404
+        end
       end
     end
   end
