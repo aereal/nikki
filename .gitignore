@@ -1,4 +1,4 @@
-pg-data
+db/data
 node_modules
 ui/assets/dist/
 proxy/etc/certs

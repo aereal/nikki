@@ -5,7 +5,10 @@ services:
   db:
     image: postgres
     volumes:
-      - ./pg-data:/var/lib/postgresql/data
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/init.d:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_DB: nikki
   app:
     build: ./app
     command: bundle exec rackup --host 0.0.0.0
