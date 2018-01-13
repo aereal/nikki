@@ -17,7 +17,8 @@ html
               time datetime=article.created_at.iso8601
                 = article.created_at.strftime('%Y-%m-%d')
           h1
-            = article.title
+            a href=article.path
+              = article.title
           == article.formatted_body
     footer
       - if next_page_token

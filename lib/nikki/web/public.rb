@@ -49,6 +49,22 @@ module Nikki
         }
         slim :index, locals: locals
       end
+
+      get '/*' do
+        logger.info("path_info = #{request.path_info}")
+        db = Nikki::Infra::Database.connection
+        if article = Nikki::Service::Articles.find_by_path(db: db, path: request.path_info)
+          formatted_article = Nikki::Service::Articles.format_body(article: article)
+          locals = {
+            article: formatted_article,
+            page_title: formatted_article.title,
+            site_title: 'Nikki',
+          }
+          slim :permalink, locals: locals
+        else
+          halt 404
+        end
+      end
     end
   end
 end
