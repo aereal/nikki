@@ -20,11 +20,9 @@ services:
     depends_on:
       - db
   node:
-    build:
-      context: .
-      dockerfile: node.Dockerfile
+    build: ./ui
     volumes:
-      - .:/app
+      - ./ui:/app
       - ./node_modules:/app/node_modules
     command: yarn run compile:watch
   proxy:
