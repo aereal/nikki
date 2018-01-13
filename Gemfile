@@ -6,6 +6,7 @@ gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'pg'
 gem 'puma'
+gem 'redcarpet'
 gem 'sequel'
 gem 'sinatra'
 gem 'sinatra-contrib', require: nil

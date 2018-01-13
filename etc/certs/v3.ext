@@ -7,3 +7,4 @@ subjectAltName = @alt_names
 DNS.1 = localhost
 DNS.2 = api.nikki.dev
 DNS.3 = admin.nikki.dev
+DNS.4 = nikki-blog.dev
