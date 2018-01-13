@@ -13,6 +13,7 @@ function getInitialProps<T>(): T | null {
     return null;
   }
   const initialProps = JSON.parse(rawInitialProps);
+  initialProps.token = window.localStorage.getItem("id_token");
   return initialProps as T;
 }
 
