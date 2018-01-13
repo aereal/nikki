@@ -22,6 +22,16 @@ module Nikki
           updated_at: self.updated_at.to_s,
         }
       end
+
+      def with_formatted_body(formatted_body)
+        @formatted_body = formatted_body
+        self.extend(Formatted)
+        self
+      end
+
+      module Formatted
+        attr_reader :formatted_body
+      end
     end
   end
 end

@@ -17,4 +17,4 @@ html
               = article.created_at.strftime('%Y-%m-%d')
           h1
             = article.title
-          = article.body
+          == article.formatted_body

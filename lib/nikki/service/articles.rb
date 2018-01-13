@@ -1,3 +1,5 @@
+require 'redcarpet'
+
 require 'nikki/model/article'
 
 module Nikki
@@ -37,6 +39,26 @@ module Nikki
         )
         row = rows.first
         Nikki::Model::Article.new(**row)
+      end
+
+      def self.format_body(article: )
+        @formatter ||=
+          begin
+            renderer = Redcarpet::Render::HTML.new(
+              no_styles: true,
+              safe_links_only: true,
+            )
+            exts = {
+              no_intra_emphasis: true,
+              tables: true,
+              autolink: true,
+              disable_indented_code_blocks: true,
+              footnotes: true,
+            }
+            Redcarpet::Markdown.new(renderer, exts)
+          end
+        formatted_body = @formatter.render(article.body)
+        article.with_formatted_body(formatted_body)
       end
     end
   end

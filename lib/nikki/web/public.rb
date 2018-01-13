@@ -36,9 +36,10 @@ module Nikki
       get '/' do
         db = Nikki::Infra::Database.connection
         articles = Nikki::Service::Articles.search(db: db, limit: 10)
+        formatted_articles = articles.map {|a| Nikki::Service::Articles.format_body(article: a) }
         locals = {
           page_title: 'Nikki',
-          articles: articles,
+          articles: formatted_articles,
         }
         slim :index, locals: locals
       end
