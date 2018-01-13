@@ -44,7 +44,8 @@ CREATE TABLE articles (
     body text NOT NULL,
     author_id bigint,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    path character varying(255) NOT NULL
 );
 
 
@@ -142,6 +143,13 @@ ALTER TABLE ONLY users
 
 ALTER TABLE ONLY users
     ADD CONSTRAINT users_slug_key UNIQUE (slug);
+
+
+--
+-- Name: by_path; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_path ON articles USING btree (path);
 
 
 --
