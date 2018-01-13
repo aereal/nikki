@@ -5,6 +5,7 @@ require 'sinatra/base'
 require 'nikki/infra/database'
 require 'nikki/model/article'
 require 'nikki/service/articles'
+require 'nikki/service/auth'
 require 'nikki/service/user'
 
 module Nikki
@@ -175,7 +176,7 @@ module Nikki
 
       options '/graphql' do
         headers['Access-Control-Allow-Methods'] = "HEAD,GET,PUT,POST,DELETE,OPTIONS"
-        headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Visitor-Key"
+        headers["Access-Control-Allow-Headers"] = "X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept, Authorization"
         headers 'Access-Control-Allow-Origin' => '*'
         200
       end
@@ -188,8 +189,15 @@ module Nikki
 
           visitor =
             begin
-              if visitor_key = request.get_header('HTTP_VISITOR_KEY')
-                Nikki::Service::User.find_by_auth_key(db: db, auth_key: visitor_key)
+              if authorization = request.get_header('HTTP_AUTHORIZATION')
+                kind, token = authorization.split(/\s+/, 2)
+                if kind == 'bearer' && token
+                  if decoded = Nikki::Service::Auth.try_authenticate(id_token: token, pub_keys_json_path: File.expand_path(File.join(settings.root, '../../../pubkeys.json')))
+                    decoded_token, * = decoded
+                    slug = decoded_token['email']
+                    Nikki::Service::User.find_by_slug(db: db, slug: slug)
+                  end
+                end
               else
                 nil
               end
