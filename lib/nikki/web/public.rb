@@ -34,6 +34,10 @@ module Nikki
         also_reload "#{root}/lib/**/*.rb"
       end
 
+      not_found do
+        slim :not_found, locals: { page_title: 'Not found', site_title: 'Nikki' }
+      end
+
       get '/' do
         pager_token = params[:page]
         pager = Nikki::Model::Pager.new_from_token(pager_token || '')
