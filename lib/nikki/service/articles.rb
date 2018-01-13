@@ -47,6 +47,7 @@ module Nikki
           author_id: author.id,
           created_at: created_at,
           updated_at: updated_at,
+          path: created_at.strftime('/%Y/%m/%d/%H%M%S'),
         )
         row = rows.first
         Nikki::Model::Article.new(**row)
