@@ -7,10 +7,10 @@ services:
     volumes:
       - ./pg-data:/var/lib/postgresql/data
   app:
-    build: .
+    build: ./app
     command: bundle exec rackup --host 0.0.0.0
     volumes:
-      - .:/app
+      - ./app:/app
     ports:
       - "9292:9292"
     environment:
