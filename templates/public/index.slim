@@ -14,7 +14,8 @@ html
         article
           footer
             p
-              = article.created_at.strftime('%Y-%m-%d')
+              time datetime=article.created_at.iso8601
+                = article.created_at.strftime('%Y-%m-%d')
           h1
             = article.title
           == article.formatted_body
