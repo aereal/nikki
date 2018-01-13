@@ -42,7 +42,8 @@ module Nikki
         pager = Nikki::Service::Articles.search(db: db, limit: 10, pager: pager)
         formatted_articles = pager[:articles].map {|a| Nikki::Service::Articles.format_body(article: a) }
         locals = {
-          page_title: 'Nikki',
+          page_title: nil,
+          site_title: 'Nikki',
           articles: formatted_articles,
           next_page_token: pager[:next_page_token],
         }
