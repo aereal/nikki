@@ -2,6 +2,7 @@ require 'sinatra/base'
 require 'slim'
 
 require 'nikki/infra/database'
+require 'nikki/model/pager'
 require 'nikki/service/articles'
 
 module Nikki
@@ -34,12 +35,16 @@ module Nikki
       end
 
       get '/' do
+        pager_token = params[:page]
+        pager = Nikki::Model::Pager.new_from_token(pager_token || '')
+
         db = Nikki::Infra::Database.connection
-        articles = Nikki::Service::Articles.search(db: db, limit: 10)
-        formatted_articles = articles.map {|a| Nikki::Service::Articles.format_body(article: a) }
+        pager = Nikki::Service::Articles.search(db: db, limit: 10, pager: pager)
+        formatted_articles = pager[:articles].map {|a| Nikki::Service::Articles.format_body(article: a) }
         locals = {
           page_title: 'Nikki',
           articles: formatted_articles,
+          next_page_token: pager[:next_page_token],
         }
         slim :index, locals: locals
       end

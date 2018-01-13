@@ -1,15 +1,32 @@
+require 'base64'
 require 'redcarpet'
 
 require 'nikki/model/article'
+require 'nikki/model/pager'
 
 module Nikki
   module Service
     module Articles
-      def self.search(db: , limit: )
-        db[:articles].
+      def self.search(db: , limit: , pager: )
+        query = db[:articles].
           reverse_order(:created_at).
-          limit(limit).
-          map {|row| Nikki::Model::Article.new(**row) }
+          limit(limit + 1)
+        if pager && pager.from
+          query = query.where { created_at <= pager.from }
+        end
+        articles = query.map {|row| Nikki::Model::Article.new(**row) }
+
+        next_page_token = nil
+        if next_article = articles[limit]
+          pager = Nikki::Model::Pager.new(from: next_article.created_at)
+          next_page_token = pager.to_s
+        end
+
+        pager = {
+          articles: articles[0, limit],
+          next_page_token: next_page_token,
+        }
+        pager
       end
 
       def self.find(db: , article_id: )

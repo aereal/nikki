@@ -19,3 +19,9 @@ html
           h1
             = article.title
           == article.formatted_body
+    footer
+      - if next_page_token
+        ul
+          li
+            a rel="next" href="/?page=#{next_page_token}"
+              | Next
