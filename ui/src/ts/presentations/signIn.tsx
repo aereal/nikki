@@ -6,11 +6,15 @@ const isOnlineResponse = (res: any): res is GoogleLoginResponse => {
 };
 
 export const SignInComponent: React.SFC<{}> = () => {
+  const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
+  if (clientId === undefined) {
+    throw new Error("GOOGLE_OAUTH_CLIENT_ID required");
+  }
   return (
     <div className="row valign-wrapper" style={{minHeight: "100vh"}}>
       <div className="col s12">
         <GoogleLogin
-          clientId=""
+          clientId={clientId}
           buttonText="Sign in with Google"
           onSuccess={(res) => {
             if (isOnlineResponse(res)) {

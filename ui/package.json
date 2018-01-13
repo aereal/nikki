@@ -6,8 +6,8 @@
   "scripts": {
     "lint": "tslint -p .",
     "lint:autofix": "tslint -p . --fix",
-    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
-    "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
+    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] -t envify $npm_package_config_main_file",
+    "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] -t envify $npm_package_config_main_file",
     "postinstall": "mkdir -p ./node_modules/@types/graphiql ./assets/css; cp typings/graphiql.d.ts ./node_modules/@types/graphiql/index.d.ts; cp ./node_modules/graphiql/graphiql.css ./assets/css/"
   },
   "config": {
