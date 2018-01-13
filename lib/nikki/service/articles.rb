@@ -34,6 +34,11 @@ module Nikki
         row ? Nikki::Model::Article.new(**row) : nil
       end
 
+      def self.find_by_path(db: , path: )
+        row = db[:articles].where(path: path).first
+        row ? Nikki::Model::Article.new(**row) : nil
+      end
+
       def self.post(db: , title: , body: , author: )
         created_at = updated_at = Time.now
         rows = db[:articles].returning.insert(
