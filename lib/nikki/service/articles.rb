@@ -3,6 +3,13 @@ require 'nikki/model/article'
 module Nikki
   module Service
     module Articles
+      def self.search(db: , limit: )
+        db[:articles].
+          reverse_order(:created_at).
+          limit(limit).
+          map {|row| Nikki::Model::Article.new(**row) }
+      end
+
       def self.find(db: , article_id: )
         row = db[:articles].where(id: article_id).first
         row ? Nikki::Model::Article.new(**row) : nil
