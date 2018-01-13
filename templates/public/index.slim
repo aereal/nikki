@@ -2,6 +2,19 @@ doctype html
 html
   head
     meta charset="utf-8"
-    title Nikki
+    title
+      = page_title
     meta name='viewport' content='width=device-width,initial-scale=1'
   body
+    header
+      h1
+        = page_title
+    main
+      - articles.each do |article|
+        article
+          footer
+            p
+              = article.created_at.strftime('%Y-%m-%d')
+          h1
+            = article.title
+          = article.body

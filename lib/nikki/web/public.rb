@@ -1,6 +1,9 @@
 require 'sinatra/base'
 require 'slim'
 
+require 'nikki/infra/database'
+require 'nikki/model/article'
+
 module Nikki
   module Web
     class Public < ::Sinatra::Base
@@ -31,7 +34,17 @@ module Nikki
       end
 
       get '/' do
-        slim :index
+        db = Nikki::Infra::Database.connection
+        per_page = 10
+        articles = db[:articles].
+          reverse_order(:created_at).
+          limit(per_page + 1).
+          map {|row| Nikki::Model::Article.new(**row) }
+        locals = {
+          page_title: 'Nikki',
+          articles: articles,
+        }
+        slim :index, locals: locals
       end
     end
   end
