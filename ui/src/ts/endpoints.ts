@@ -1,1 +1,1 @@
-export const API_ORIGIN = "https://api.nikki.dev";
+export const API_ORIGIN = process.env.API_ORIGIN;
