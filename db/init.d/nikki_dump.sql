@@ -75,8 +75,7 @@ ALTER SEQUENCE articles_id_seq OWNED BY articles.id;
 CREATE TABLE users (
     id bigint NOT NULL,
     name character varying(255) NOT NULL,
-    slug character varying(255) NOT NULL,
-    auth_key character varying(255) NOT NULL
+    slug character varying(255) NOT NULL
 );
 
 
@@ -119,14 +118,6 @@ ALTER TABLE ONLY users ALTER COLUMN id SET DEFAULT nextval('users_id_seq'::regcl
 
 ALTER TABLE ONLY articles
     ADD CONSTRAINT articles_pkey PRIMARY KEY (id);
-
-
---
--- Name: users users_auth_key_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY users
-    ADD CONSTRAINT users_auth_key_key UNIQUE (auth_key);
 
 
 --

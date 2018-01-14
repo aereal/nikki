@@ -1,27 +1,27 @@
 import * as React from "react";
 
 import { updateArticle } from "../actions/articles";
+import { isSignedIn } from "../authentication";
 import { AuthenticationComponent } from "../components/authentication";
 import { EditorComponent } from "../components/editor";
 import { Article, PostedArticle } from "../models/article";
-import { AuthedUser } from "../models/user";
 import { SignInComponent } from "../presentations/signIn";
 
 export interface Props {
-  authedUser: AuthedUser | null;
+  token?: string;
   article: PostedArticle;
 }
 
-export const EditArticlePageComponent: React.SFC<Props> = ({ authedUser, article }) => {
-  const onSubmit = authedUser === undefined || authedUser === null ?
-    () => {} : // tslint:disable-line:no-empty
+export const EditArticlePageComponent: React.SFC<Props> = ({ token, article }) => {
+  const onSubmit = isSignedIn(token) ?
     (editingArticle: Article) => {
-      updateArticle(authedUser, { ...editingArticle, id: article.id });
+      updateArticle(token, { ...editingArticle, id: article.id });
       alert("publish");
-    };
+    } :
+    () => {}; // tslint:disable-line:no-empty
   return (
     <AuthenticationComponent
-      authenticated={() => authedUser !== null }
+      authenticated={() => isSignedIn(token)}
       authenticatedView={<EditorComponent headerHeight="10vh" onSubmit={onSubmit} article={article} />}
       authenticationView={<SignInComponent />} />
   );

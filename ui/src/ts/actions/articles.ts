@@ -1,6 +1,5 @@
 import { API_ORIGIN } from "../endpoints";
 import { Article, isPostedArticle , PostedArticle } from "../models/article";
-import { AuthedUser } from "../models/user";
 
 const postArticleMutation = `
 mutation post($article: ArticleInputType!) {
@@ -22,7 +21,7 @@ mutation update($articleId: ID!, $article: ArticleUpdateInputType!) {
 }
 `;
 
-export const postArticle = (author: AuthedUser, article: Article): Promise<PostedArticle> => {
+export const postArticle = (token: string, article: Article): Promise<PostedArticle> => {
   const variables = {
     article: {
       body: article.body,
@@ -36,8 +35,8 @@ export const postArticle = (author: AuthedUser, article: Article): Promise<Poste
     }),
     credentials: "same-origin",
     headers: {
+      "authorization": `bearer ${token}`,
       "content-type": "application/json",
-      "visitor-key": author.authKey,
     },
     method: "POST",
   });
@@ -52,7 +51,7 @@ export const postArticle = (author: AuthedUser, article: Article): Promise<Poste
     });
 };
 
-export const updateArticle = (author: AuthedUser, article: PostedArticle): Promise<PostedArticle> => {
+export const updateArticle = (token: string, article: PostedArticle): Promise<PostedArticle> => {
   const variables = {
     article: {
       body: article.body,
@@ -67,8 +66,8 @@ export const updateArticle = (author: AuthedUser, article: PostedArticle): Promi
     }),
     credentials: "same-origin",
     headers: {
+      "authorization": `bearer ${token}`,
       "content-type": "application/json",
-      "visitor-key": author.authKey,
     },
     method: "POST",
   });

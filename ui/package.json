@@ -6,8 +6,8 @@
   "scripts": {
     "lint": "tslint -p .",
     "lint:autofix": "tslint -p . --fix",
-    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
-    "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] $npm_package_config_main_file",
+    "compile": "browserify -d -o $npm_package_config_out_file -p [tsify -p .] -t envify $npm_package_config_main_file",
+    "compile:watch": "watchify --poll=100 -v -o $npm_package_config_out_file -p [tsify -p .] -t envify $npm_package_config_main_file",
     "postinstall": "mkdir -p ./node_modules/@types/graphiql ./assets/css; cp typings/graphiql.d.ts ./node_modules/@types/graphiql/index.d.ts; cp ./node_modules/graphiql/graphiql.css ./assets/css/"
   },
   "config": {
@@ -30,9 +30,11 @@
     "@types/react": "^16.0.26",
     "@types/react-dom": "^16.0.3",
     "browserify": "^14.5.0",
+    "envify": "^4.1.0",
     "graphiql": "^0.11.10",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
+    "react-google-login": "^3.0.4",
     "tsify": "^3.0.3",
     "tslint": "^5.8.0",
     "typescript": "^2.6.2",
