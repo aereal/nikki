@@ -20,6 +20,9 @@ services:
       GOOGLE_OAUTH_CLIENT_ID: $GOOGLE_OAUTH_CLIENT_ID
       GOOGLE_OAUTH_CLIENT_SECRET: $GOOGLE_OAUTH_CLIENT_SECRET
       DB_DSN_URL: postgres://postgres:postgres@db/nikki
+      PUBLIC_ORIGIN: https://nikki-blog.dev
+      ADMIN_ORIGIN: https://admin.nikki.dev
+      API_ORIGIN: https://api.nikki.dev
     depends_on:
       - db
   node:
@@ -30,6 +33,7 @@ services:
     command: yarn run compile:watch
     environment:
       GOOGLE_OAUTH_CLIENT_ID: $GOOGLE_OAUTH_CLIENT_ID
+      API_ORIGIN: https://api.nikki.dev
   proxy:
     image: nginx:latest
     ports:

@@ -12,14 +12,18 @@ require 'nikki/web/admin'
 require 'nikki/web/api'
 require 'nikki/web/public'
 
-map 'https://nikki-blog.dev/' do
+public_origin = ENV['PUBLIC_ORIGIN']
+admin_origin = ENV['ADMIN_ORIGIN']
+api_origin = ENV['API_ORIGIN']
+
+map "#{public_origin}/" do
   run Nikki::Web::Public
 end
 
-map 'https://admin.nikki.dev/' do
+map "#{admin_origin}/" do
   run Nikki::Web::Admin
 end
 
-map 'https://api.nikki.dev/' do
+map "#{api_origin}/" do
   run Nikki::Web::Api
 end
