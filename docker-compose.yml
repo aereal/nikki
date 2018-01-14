@@ -19,7 +19,7 @@ services:
     environment:
       GOOGLE_OAUTH_CLIENT_ID: $GOOGLE_OAUTH_CLIENT_ID
       GOOGLE_OAUTH_CLIENT_SECRET: $GOOGLE_OAUTH_CLIENT_SECRET
-      DB_HOST: db
+      DB_DSN_URL: postgres://postgres:postgres@db/nikki
     depends_on:
       - db
   node:
