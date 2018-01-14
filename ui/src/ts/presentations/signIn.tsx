@@ -25,7 +25,7 @@ export const SignInComponent: React.SFC<{}> = () => {
           }}
           onFailure={(res) => {
             console.log(res);
-            debugger;
+            alert("failed to login");
           }}
         />
       </div>
