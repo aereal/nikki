@@ -8,10 +8,10 @@ properties:
     type: 'string'
   GOOGLE_OAUTH_CLIENT_SECRET:
     type: 'string'
-  DB_HOST:
+  DB_DSN_URL:
     type: 'string'
 required:
   - GOOGLE_OAUTH_CLIENT_ID
   - GOOGLE_OAUTH_CLIENT_SECRET
-  - DB_HOST
+  - DB_DSN_URL
 additionalProperties: true

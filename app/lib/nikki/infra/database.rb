@@ -9,7 +9,8 @@ module Nikki
       end
 
       def self.connect!
-        db = Sequel.connect("postgres://postgres:postgres@#{ENV['DB_HOST']}/nikki", log_connection_info: true)
+        dsn_url = ENV['DB_DSN_URL']
+        db = Sequel.connect(dsn_url, log_connection_info: true)
         logger = Logger.new($stdout)
         logger.progname = 'sequel'
         db.logger = logger
