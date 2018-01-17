@@ -1,0 +1,13 @@
+---
+
+-
+  name: install ntp
+  apt:
+    name: ntp
+    state: latest
+
+-
+  name: start ntpd
+  service:
+    name: ntp
+    state: started

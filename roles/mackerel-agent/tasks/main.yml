@@ -1,0 +1,32 @@
+---
+
+-
+  name: import Mackerel GPG key
+  apt_key:
+    url: https://mackerel.io/file/cert/GPG-KEY-mackerel-v2
+    state: present
+
+-
+  name: add Mackerel repository
+  apt_repository:
+    repo: 'deb http://apt.mackerel.io/v2/ mackerel contrib'
+    state: present
+    update_cache: yes
+
+-
+  name: install packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - mackerel-agent
+    - mackerel-agent-plugins
+    - mkr
+
+-
+  name: configure mackerel-agent
+  template:
+    dest: /etc/mackerel-agent/mackerel-agent.conf
+    src: mackerel-agent.conf.j2
+  notify:
+    - restart mackerel-agent

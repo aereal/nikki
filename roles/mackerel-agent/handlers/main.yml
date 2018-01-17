@@ -1,0 +1,7 @@
+---
+
+-
+  name: restart mackerel-agent
+  service:
+    name: mackerel-agent
+    state: restarted

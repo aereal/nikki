@@ -1,0 +1,9 @@
+---
+
+-
+  hosts: db
+  gather_facts: no
+  roles:
+    - ntp
+    - postgresql
+    - mackerel-agent
