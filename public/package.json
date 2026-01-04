@@ -1,0 +1,9 @@
+{
+  "name": "@nikki/public",
+  "version": "0.0.1-unreleased",
+  "scripts": {
+    "test": ":"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.27.0"
+}
