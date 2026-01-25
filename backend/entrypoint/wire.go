@@ -11,6 +11,8 @@ import (
 	"github.com/aereal/nikki/backend/o11y/service"
 	"github.com/aereal/nikki/backend/web"
 	"github.com/google/wire"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
@@ -27,6 +29,7 @@ func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 		provideDynamicServiceVersion,
 		provideEntrypoint,
 		web.ProvideServer,
+		wire.Bind(new(trace.TracerProvider), new(*sdktrace.TracerProvider)),
 		wire.Value(log.GoogleCloudProject("dummy")),
 		wire.Value(service.Environment("local")),
 	)

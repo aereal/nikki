@@ -31,11 +31,6 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 	}
 	logger := log.ProvideLogger(output, level, googleCloudProject, version)
 	globalInstrumentationToken := log.ProvideGlobalInstrumentation(logger)
-	port, err := env.ProvidePort(variables)
-	if err != nil {
-		return nil, err
-	}
-	server := web.ProvideServer(port)
 	exporter, err := o11y.ProvideSidecarExporter(contextContext)
 	if err != nil {
 		return nil, err
@@ -46,6 +41,11 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 		return nil, err
 	}
 	tracerProvider := o11y.ProvideTracerProvider(exporter, resource)
+	port, err := env.ProvidePort(variables)
+	if err != nil {
+		return nil, err
+	}
+	server := web.ProvideServer(tracerProvider, port)
 	entrypoint := provideEntrypoint(contextContext, globalInstrumentationToken, server, tracerProvider)
 	return entrypoint, nil
 }

@@ -3,6 +3,7 @@ package web
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
@@ -12,18 +13,25 @@ import (
 	"time"
 
 	"github.com/aereal/nikki/backend/log/attr"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 )
 
 type Port string
 
-func ProvideServer(port Port) *Server {
+func ProvideServer(tp trace.TracerProvider, port Port) *Server {
 	return &Server{
-		port: port,
+		port:   port,
+		tp:     tp,
+		tracer: tp.Tracer("github.com/aereal/nikki/backend/web.Server"),
 	}
 }
 
 type Server struct {
-	port Port
+	port   Port
+	tp     trace.TracerProvider
+	tracer trace.Tracer
 }
 
 func (s *Server) Start(ctx context.Context) error {
@@ -55,5 +63,14 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) handler() http.Handler {
 	mux := http.NewServeMux()
-	return mux
+	return otelhttp.NewMiddleware("default",
+		otelhttp.WithTracerProvider(s.tp),
+		otelhttp.WithPropagators(propagation.TraceContext{}),
+		otelhttp.WithSpanNameFormatter(func(_ string, r *http.Request) string {
+			if r.Pattern != "" {
+				return r.Pattern
+			}
+			return r.Method + " " + r.URL.Path
+		}),
+	)(mux)
 }
