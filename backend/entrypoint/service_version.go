@@ -8,10 +8,10 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/aereal/nikki/backend/log"
+	"github.com/aereal/nikki/backend/o11y/service"
 )
 
-func provideDynamicServiceVersion(ctx context.Context) (log.ServiceVersion, error) {
+func provideDynamicServiceVersion(ctx context.Context) (service.Version, error) {
 	c := exec.CommandContext(ctx, "git", "describe", "--always", "--tags", "--dirty", "--abbrev=0")
 	c.WaitDelay = time.Second * 1
 	c.Cancel = func() error { return c.Process.Signal(os.Interrupt) }
@@ -22,5 +22,5 @@ func provideDynamicServiceVersion(ctx context.Context) (log.ServiceVersion, erro
 	if err := c.Run(); err != nil {
 		return "", fmt.Errorf("command failed: stderr=%s: %w", stderr, err)
 	}
-	return log.ServiceVersion(bytes.TrimSpace(stdout.Bytes())), nil
+	return service.Version(bytes.TrimSpace(stdout.Bytes())), nil
 }

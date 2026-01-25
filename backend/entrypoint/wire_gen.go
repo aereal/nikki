@@ -24,11 +24,11 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 		return nil, err
 	}
 	googleCloudProject := _wireGoogleCloudProjectValue
-	serviceVersion, err := provideDynamicServiceVersion(contextContext)
+	version, err := provideDynamicServiceVersion(contextContext)
 	if err != nil {
 		return nil, err
 	}
-	logger := log.ProvideLogger(output, level, googleCloudProject, serviceVersion)
+	logger := log.ProvideLogger(output, level, googleCloudProject, version)
 	globalInstrumentationToken := log.ProvideGlobalInstrumentation(logger)
 	port, err := env.ProvidePort(variables)
 	if err != nil {

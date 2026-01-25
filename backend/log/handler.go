@@ -5,17 +5,18 @@ import (
 	"log/slog"
 
 	"github.com/aereal/nikki/backend/log/attr"
+	"github.com/aereal/nikki/backend/o11y/service"
 	"go.opentelemetry.io/otel/trace"
 )
 
-func newHandler(base slog.Handler, project GoogleCloudProject, version ServiceVersion) *handler {
+func newHandler(base slog.Handler, project GoogleCloudProject, version service.Version) *handler {
 	return &handler{base: base, project: project, version: version}
 }
 
 type handler struct {
 	base    slog.Handler
 	project GoogleCloudProject
-	version ServiceVersion
+	version service.Version
 }
 
 var _ slog.Handler = (*handler)(nil)

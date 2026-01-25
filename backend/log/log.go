@@ -4,6 +4,8 @@ import (
 	"io"
 	"log/slog"
 	"os"
+
+	"github.com/aereal/nikki/backend/o11y/service"
 )
 
 type Output io.Writer
@@ -12,9 +14,7 @@ func ProvideStdout() Output { return os.Stdout }
 
 type GoogleCloudProject string
 
-type ServiceVersion string
-
-func ProvideLogger(output Output, level slog.Level, project GoogleCloudProject, version ServiceVersion) *slog.Logger {
+func ProvideLogger(output Output, level slog.Level, project GoogleCloudProject, version service.Version) *slog.Logger {
 	h := slog.NewJSONHandler(output, &slog.HandlerOptions{
 		Level: level,
 	})
