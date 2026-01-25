@@ -13,4 +13,5 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
   },
   "go.lintTool": "golangci-lint-v2",
+  "go.buildTags": "wireinject",
 }
