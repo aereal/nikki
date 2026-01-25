@@ -11,6 +11,7 @@ import (
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/log"
 	"github.com/aereal/nikki/backend/o11y"
+	"github.com/aereal/nikki/backend/o11y/service"
 	"github.com/aereal/nikki/backend/web"
 )
 
@@ -35,11 +36,21 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 		return nil, err
 	}
 	server := web.ProvideServer(port)
-	tracerProvider := o11y.ProvideTracerProvider()
+	exporter, err := o11y.ProvideSidecarExporter(contextContext)
+	if err != nil {
+		return nil, err
+	}
+	environment := _wireEnvironmentValue
+	resource, err := o11y.ProvideResource(contextContext, version, environment)
+	if err != nil {
+		return nil, err
+	}
+	tracerProvider := o11y.ProvideTracerProvider(exporter, resource)
 	entrypoint := provideEntrypoint(contextContext, globalInstrumentationToken, server, tracerProvider)
 	return entrypoint, nil
 }
 
 var (
 	_wireGoogleCloudProjectValue = log.GoogleCloudProject("dummy")
+	_wireEnvironmentValue        = service.Environment("local")
 )

@@ -1,5 +1,10 @@
 package service
 
+const (
+	ServiceName = "nikki-backend"
+)
+
 type (
-	Version string
+	Version     string
+	Environment string
 )
