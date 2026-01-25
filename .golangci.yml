@@ -1,0 +1,72 @@
+version: "2"
+formatters: {}
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  uniq-by-line: false
+output:
+  sort-order:
+    - file
+    - linter
+    - severity
+  show-stats: false
+run:
+  timeout: 30s
+  tests: true
+  build-tags:
+    - wireinject
+  allow-parallel-runners: true
+linters:
+  default: none
+  enable:
+    - asasalint
+    - bodyclose
+    - containedctx
+    - contextcheck
+    - copyloopvar
+    - durationcheck
+    - embeddedstructfieldcheck
+    - err113
+    - errcheck
+    - errchkjson
+    - errname
+    - exhaustive
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - gocritic
+    - gosec
+    - govet
+    - iface
+    - ineffassign
+    - intrange
+    - nilnesserr
+    - nilnil
+    - noctx
+    - nolintlint
+    - paralleltest
+    - perfsprint
+    - prealloc
+    - reassign
+    - sloglint
+    - staticcheck
+    - testpackage
+    - thelper
+    - tparallel
+    - unconvert
+    - unparam
+    - usetesting
+  settings:
+    errcheck:
+      check-type-assertions: true
+      exclude-functions:
+        - (io.ReadCloser).Close
+        - (*os.File).Close
+        - (*database/sql.Rows).Close
+    exhaustive:
+      default-signifies-exhaustive: true
+  exclusions:
+    rules:
+      - path: '\bwire[.]go'
+        linters:
+          - nilnil
