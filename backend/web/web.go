@@ -2,6 +2,8 @@ package web
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -20,11 +22,12 @@ import (
 
 type Port string
 
-func ProvideServer(tp trace.TracerProvider, port Port) *Server {
+func ProvideServer(tp trace.TracerProvider, port Port, db *sql.DB) *Server {
 	return &Server{
 		port:   port,
 		tp:     tp,
 		tracer: tp.Tracer("github.com/aereal/nikki/backend/web.Server"),
+		db:     db,
 	}
 }
 
@@ -32,6 +35,7 @@ type Server struct {
 	port   Port
 	tp     trace.TracerProvider
 	tracer trace.Tracer
+	db     *sql.DB
 }
 
 func (s *Server) Start(ctx context.Context) error {
@@ -63,6 +67,28 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.Handle("POST /init", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := doInit(r.Context(), s.db); err != nil {
+			handleError(w, err)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
+	mux.Handle("GET /counter/{id}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		value, err := doGetCounter(r.Context(), s.db, r.PathValue("id"))
+		if err != nil {
+			handleError(w, err)
+			return
+		}
+		w.Header().Set("content-type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]int64{"value": value})
+	}))
+	mux.Handle("PATCH /counter/{id}", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := doIncrement(r.Context(), s.db, r.PathValue("id")); err != nil {
+			handleError(w, err)
+		}
+		w.WriteHeader(http.StatusNoContent)
+	}))
 	return otelhttp.NewMiddleware("default",
 		otelhttp.WithTracerProvider(s.tp),
 		otelhttp.WithPropagators(propagation.TraceContext{}),
@@ -73,4 +99,35 @@ func (s *Server) handler() http.Handler {
 			return r.Method + " " + r.URL.Path
 		}),
 	)(mux)
+}
+
+func doInit(ctx context.Context, db *sql.DB) error {
+	_, err := db.ExecContext(ctx, `create table counter (id text primary key, value integer not null)`)
+	return err
+}
+
+func doGetCounter(ctx context.Context, db *sql.DB, id string) (int64, error) {
+	row := db.QueryRowContext(ctx, `select value from counter where id = ?`, id)
+	if err := row.Err(); err != nil {
+		return 0, err
+	}
+	var value int64
+	if err := row.Scan(&value); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("sql.Row.Scan: %w", err)
+	}
+	return value, nil
+}
+
+func doIncrement(ctx context.Context, db *sql.DB, id string) error {
+	_, err := db.ExecContext(ctx, `insert into counter (id, value) values (?, ?) on conflict (id) do update set value = excluded.value + 1`, id, 1)
+	return err
+}
+
+func handleError(w http.ResponseWriter, err error) {
+	w.Header().Set("content-type", "application/json")
+	w.WriteHeader(http.StatusInternalServerError)
+	_ = json.NewEncoder(w).Encode(map[string]string{"error": err.Error()}) //nolint:errchkjson // ignore JSON write failure
 }

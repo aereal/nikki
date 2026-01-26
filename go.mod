@@ -3,8 +3,10 @@ module github.com/aereal/nikki
 go 1.25.1
 
 require (
+	github.com/XSAM/otelsql v0.41.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/wire v0.7.0
+	github.com/mattn/go-sqlite3 v1.14.33
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.64.0
 	go.opentelemetry.io/otel v1.39.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.39.0

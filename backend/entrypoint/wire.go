@@ -6,6 +6,7 @@ import (
 	"context"
 
 	"github.com/aereal/nikki/backend/env"
+	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/log"
 	"github.com/aereal/nikki/backend/o11y"
 	"github.com/aereal/nikki/backend/o11y/service"
@@ -17,6 +18,8 @@ import (
 
 func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 	wire.Build(
+		db.ProvideDB,
+		env.ProvideDBEndpoint,
 		env.ProvideLogLevel,
 		env.ProvidePort,
 		env.ProvideVariables,

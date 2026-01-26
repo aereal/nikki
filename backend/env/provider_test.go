@@ -6,13 +6,15 @@ import (
 	"testing"
 
 	"github.com/aereal/nikki/backend/env"
+	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/web"
 	"github.com/google/go-cmp/cmp"
 )
 
 type testCaseRoot struct {
-	port     map[string]result[web.Port]
-	logLevel map[string]result[slog.Level]
+	port       map[string]result[web.Port]
+	logLevel   map[string]result[slog.Level]
+	dbEndpoint map[string]result[db.Endpoint]
 }
 
 func TestProviders(t *testing.T) {
@@ -53,6 +55,14 @@ func TestProviders(t *testing.T) {
 				variables:   env.Variables{"LOG_LEVEL": "abc"},
 			},
 		},
+		dbEndpoint: map[string]result[db.Endpoint]{
+			"ok": {
+				provideFunc: env.ProvideDBEndpoint,
+				want:        &db.FileEndpoint{Path: "a.db", Params: &db.ParameterSet{Cache: db.CacheModeShared}},
+				wantErr:     nil,
+				variables:   env.Variables{"DB_FILE": "a.db"},
+			},
+		},
 	}
 	for name, tc := range root.port {
 		t.Run(name, func(t *testing.T) {
@@ -61,6 +71,12 @@ func TestProviders(t *testing.T) {
 		})
 	}
 	for name, tc := range root.logLevel {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assertProvider(t, &tc)
+		})
+	}
+	for name, tc := range root.dbEndpoint {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			assertProvider(t, &tc)

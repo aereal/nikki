@@ -9,6 +9,7 @@ package entrypoint
 import (
 	"context"
 	"github.com/aereal/nikki/backend/env"
+	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/log"
 	"github.com/aereal/nikki/backend/o11y"
 	"github.com/aereal/nikki/backend/o11y/service"
@@ -45,7 +46,15 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	server := web.ProvideServer(tracerProvider, port)
+	endpoint, err := env.ProvideDBEndpoint(variables)
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, err := db.ProvideDB(tracerProvider, endpoint)
+	if err != nil {
+		return nil, err
+	}
+	server := web.ProvideServer(tracerProvider, port, sqlDB)
 	entrypoint := provideEntrypoint(contextContext, globalInstrumentationToken, server, tracerProvider)
 	return entrypoint, nil
 }

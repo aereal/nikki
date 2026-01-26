@@ -3,6 +3,7 @@ package env
 import (
 	"log/slog"
 
+	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/web"
 )
 
@@ -22,4 +23,13 @@ func ProvideLogLevel(vars Variables) (slog.Level, error) {
 		return 0, err
 	}
 	return level, nil
+}
+
+func ProvideDBEndpoint(vars Variables) (db.Endpoint, error) {
+	scan := scanOrElse(scanString, "local.db")
+	endpoint := &db.FileEndpoint{Params: &db.ParameterSet{Cache: db.CacheModeShared}}
+	if err := scan(vars, "DB_FILE", &endpoint.Path); err != nil {
+		return nil, err
+	}
+	return endpoint, nil
 }
