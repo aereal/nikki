@@ -14,6 +14,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/log/attr"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/propagation"
@@ -22,20 +23,22 @@ import (
 
 type Port string
 
-func ProvideServer(tp trace.TracerProvider, port Port, db *sql.DB) *Server {
+func ProvideServer(tp trace.TracerProvider, port Port, db *sql.DB, gh graph.Handler) *Server {
 	return &Server{
-		port:   port,
-		tp:     tp,
-		tracer: tp.Tracer("github.com/aereal/nikki/backend/web.Server"),
-		db:     db,
+		port:           port,
+		tp:             tp,
+		tracer:         tp.Tracer("github.com/aereal/nikki/backend/web.Server"),
+		db:             db,
+		graphqlHandler: gh,
 	}
 }
 
 type Server struct {
-	port   Port
-	tp     trace.TracerProvider
-	tracer trace.Tracer
-	db     *sql.DB
+	port           Port
+	tp             trace.TracerProvider
+	tracer         trace.Tracer
+	db             *sql.DB
+	graphqlHandler graph.Handler
 }
 
 func (s *Server) Start(ctx context.Context) error {
@@ -67,6 +70,7 @@ func (s *Server) Start(ctx context.Context) error {
 
 func (s *Server) handler() http.Handler {
 	mux := http.NewServeMux()
+	mux.Handle("POST /graphql", s.graphqlHandler)
 	mux.Handle("POST /init", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := doInit(r.Context(), s.db); err != nil {
 			handleError(w, err)

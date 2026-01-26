@@ -6,6 +6,8 @@ import (
 	"context"
 
 	"github.com/aereal/nikki/backend/env"
+	"github.com/aereal/nikki/backend/graph"
+	"github.com/aereal/nikki/backend/graph/resolvers"
 	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/log"
 	"github.com/aereal/nikki/backend/o11y"
@@ -23,6 +25,7 @@ func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 		env.ProvideLogLevel,
 		env.ProvidePort,
 		env.ProvideVariables,
+		graph.ProviveHandler,
 		log.ProvideGlobalInstrumentation,
 		log.ProvideLogger,
 		log.ProvideStdout,
@@ -31,6 +34,7 @@ func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 		o11y.ProvideTracerProvider,
 		provideDynamicServiceVersion,
 		provideEntrypoint,
+		resolvers.ProvideResolver,
 		web.ProvideServer,
 		wire.Bind(new(trace.TracerProvider), new(*sdktrace.TracerProvider)),
 		wire.Value(log.GoogleCloudProject("dummy")),

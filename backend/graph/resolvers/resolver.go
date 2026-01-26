@@ -12,7 +12,7 @@ import (
 type Resolver struct{}
 
 func (r *queryResolver) Article(ctx context.Context, slug string) (*dto.Article, error) {
-	panic("not implemented")
+	return &dto.Article{Slug: slug}, nil
 }
 
 func (r *Resolver) Query() exec.QueryResolver { return &queryResolver{r} }
