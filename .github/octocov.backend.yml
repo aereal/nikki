@@ -1,0 +1,24 @@
+---
+repository: aereal/nikki/backend
+coverage:
+  if: true
+  paths:
+    - "../coverage.out"
+codeToTestRatio:
+  code:
+    - "../backend/**/*.go"
+    - "!../backend/**/*_test.go"
+  test:
+    - "../backend/**/*_test.go"
+testExecutionTime:
+  if: true
+diff:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}/octocov-report-backend
+report:
+  datastores:
+    - artifact://${GITHUB_REPOSITORY}/octocov-report-backend
+comment:
+  if: is_pull_request
+summary:
+  if: is_pull_request
