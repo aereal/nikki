@@ -1,4 +1,5 @@
 ---
+omit_gqlgen_file_notice: true
 omit_gqlgen_version_in_file_notice: true
 omit_resolver_fields: true
 omit_root_models: true
@@ -16,5 +17,5 @@ resolver:
   package: resolvers
   layout: single-file
   filename: ./backend/graph/resolvers/resolver.go
-  omit_template_comment: false
+  omit_template_comment: true
 models: {}
