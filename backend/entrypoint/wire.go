@@ -43,3 +43,28 @@ func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 	)
 	return nil, nil
 }
+
+func NewProductionEntrypoint(_ context.Context) (*Entrypoint, error) {
+	wire.Build(
+		db.ProvideDB,
+		env.ProvideDBEndpoint,
+		env.ProvideGoogleCloudProject,
+		env.ProvideLogLevel,
+		env.ProvidePort,
+		env.ProvideServiceVersion,
+		env.ProvideVariables,
+		graph.ProviveHandler,
+		log.ProvideGlobalInstrumentation,
+		log.ProvideLogger,
+		log.ProvideStdout,
+		o11y.ProvideGoogleCloudRunResource,
+		o11y.ProvideGoogleTelemetryTraceExporter,
+		o11y.ProvideTracerProvider,
+		provideEntrypoint,
+		resolvers.ProvideResolver,
+		web.ProvideServer,
+		wire.Bind(new(trace.TracerProvider), new(*sdktrace.TracerProvider)),
+		wire.Value(service.Environment("production")),
+	)
+	return nil, nil
+}

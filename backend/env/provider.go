@@ -3,7 +3,9 @@ package env
 import (
 	"log/slog"
 
+	"github.com/aereal/nikki/backend/adapters/gcp/metadata"
 	"github.com/aereal/nikki/backend/infra/db"
+	"github.com/aereal/nikki/backend/o11y/service"
 	"github.com/aereal/nikki/backend/web"
 )
 
@@ -32,4 +34,20 @@ func ProvideDBEndpoint(vars Variables) (db.Endpoint, error) {
 		return nil, err
 	}
 	return endpoint, nil
+}
+
+func ProvideGoogleCloudProject(vars Variables) (metadata.Project, error) {
+	var project metadata.Project
+	if err := scannerWithParse(stringAs[metadata.Project])(vars, "GOOGLE_CLOUD_PROJECT", &project); err != nil {
+		return "", err
+	}
+	return project, nil
+}
+
+func ProvideServiceVersion(vars Variables) (service.Version, error) {
+	var version service.Version
+	if err := scannerWithParse(stringAs[service.Version])(vars, "SERVICE_VERSION", &version); err != nil {
+		return "", err
+	}
+	return version, nil
 }

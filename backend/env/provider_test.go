@@ -5,16 +5,20 @@ import (
 	"log/slog"
 	"testing"
 
+	"github.com/aereal/nikki/backend/adapters/gcp/metadata"
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/infra/db"
+	"github.com/aereal/nikki/backend/o11y/service"
 	"github.com/aereal/nikki/backend/web"
 	"github.com/google/go-cmp/cmp"
 )
 
 type testCaseRoot struct {
-	port       map[string]result[web.Port]
-	logLevel   map[string]result[slog.Level]
-	dbEndpoint map[string]result[db.Endpoint]
+	port               map[string]result[web.Port]
+	logLevel           map[string]result[slog.Level]
+	dbEndpoint         map[string]result[db.Endpoint]
+	googleCloudProject map[string]result[metadata.Project]
+	serviceVersion     map[string]result[service.Version]
 }
 
 func TestProviders(t *testing.T) {
@@ -63,6 +67,22 @@ func TestProviders(t *testing.T) {
 				variables:   env.Variables{"DB_FILE": "a.db"},
 			},
 		},
+		googleCloudProject: map[string]result[metadata.Project]{
+			"ok": {
+				provideFunc: env.ProvideGoogleCloudProject,
+				want:        metadata.Project("project-1"),
+				wantErr:     nil,
+				variables:   env.Variables{"GOOGLE_CLOUD_PROJECT": "project-1"},
+			},
+		},
+		serviceVersion: map[string]result[service.Version]{
+			"ok": {
+				provideFunc: env.ProvideServiceVersion,
+				want:        service.Version("latest"),
+				wantErr:     nil,
+				variables:   env.Variables{"SERVICE_VERSION": "latest"},
+			},
+		},
 	}
 	for name, tc := range root.port {
 		t.Run(name, func(t *testing.T) {
@@ -77,6 +97,18 @@ func TestProviders(t *testing.T) {
 		})
 	}
 	for name, tc := range root.dbEndpoint {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assertProvider(t, &tc)
+		})
+	}
+	for name, tc := range root.googleCloudProject {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			assertProvider(t, &tc)
+		})
+	}
+	for name, tc := range root.serviceVersion {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			assertProvider(t, &tc)

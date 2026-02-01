@@ -169,7 +169,7 @@ jobs:
           region: asia-northeast1
           env_vars: |-
             GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
-            OTEL_SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
+            SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
           flags: |
             --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
           labels: |-

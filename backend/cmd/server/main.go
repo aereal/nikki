@@ -7,4 +7,4 @@ import (
 	"github.com/aereal/nikki/backend/entrypoint"
 )
 
-func main() { os.Exit(entrypoint.Run(entrypoint.NewDevEntrypoint(context.Background()))) }
+func main() { os.Exit(entrypoint.Run(entrypoint.NewProductionEntrypoint(context.Background()))) }
