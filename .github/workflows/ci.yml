@@ -171,6 +171,7 @@ jobs:
           env_vars: |-
             GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
             SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
+            DB_FILE=/tmp/main.db
           flags: |
             --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
           labels: |-
