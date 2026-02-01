@@ -9,5 +9,9 @@
     "source.fixAll": "explicit"
   },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "prettier.prettier-vscode"
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  },
+  "go.lintTool": "golangci-lint-v2",
+  "go.buildTags": "wireinject",
 }

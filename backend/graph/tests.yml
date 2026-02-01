@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=./tests.schema.json
+---
+cases:
+  "query article":
+    request:
+      variables:
+        slug: "abc"
+      query: |
+        query get($slug: String!) {
+          article(slug: $slug) {
+            slug
+          }
+        }
+    response:
+      data:
+        article:
+          slug: "abc"

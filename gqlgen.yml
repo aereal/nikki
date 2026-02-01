@@ -1,0 +1,21 @@
+---
+omit_gqlgen_file_notice: true
+omit_gqlgen_version_in_file_notice: true
+omit_resolver_fields: true
+omit_root_models: true
+skip_mod_tidy: true
+schema:
+  - ./schema.gql
+exec:
+  package: exec
+  layout: single-file
+  filename: ./backend/graph/exec/exec_gen.go
+model:
+  filename: ./backend/graph/dto/dto_gen.go
+  package: dto
+resolver:
+  package: resolvers
+  layout: single-file
+  filename: ./backend/graph/resolvers/resolver.go
+  omit_template_comment: true
+models: {}

@@ -14,6 +14,7 @@ jobs:
     needs:
       - public-test
       - public-lint
+      - backend-test
     if: failure()
     permissions: {}
     runs-on: ubuntu-24.04
@@ -27,11 +28,11 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
           run_install: false
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version-file: package.json
           cache: pnpm
@@ -50,11 +51,11 @@ jobs:
       contents: read
       pull-requests: write
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
         with:
           run_install: false
-      - uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6.1.0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version-file: package.json
           cache: pnpm
@@ -67,3 +68,116 @@ jobs:
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ github.token }}
         run: reviewdog -f eslint -fail-level any -filter-mode nofilter -reporter github-pr-review < out.txt
+  backend-test:
+    name: "backend: test"
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        id: setup-go
+        with:
+          cache: true
+          go-version-file: go.mod
+      - run: go mod download
+      - name: go test
+        run: go test -coverpkg=./... -coverprofile=./coverage.out -timeout=30s ./backend/...
+      - uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
+        with:
+          version: v0.74.1
+          config: ${{ github.workspace }}/.github/octocov.backend.yml
+  backend-build:
+    name: "backend: build"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      REGISTRY: asia-northeast1-docker.pkg.dev
+      KOCACHE: ${{ github.workspace }}/.ko-cache
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+      revision: ${{ steps.build.outputs.revision }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ko-build/setup-ko@d006021bd0c28d1ce33a07e7943d48b079944c8d # v0.9
+        with:
+          version: v0.18.1
+      - id: auth
+        uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_ACTIONS_SERVICE_ACCOUNT_EMAIL }}
+      - uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
+        with:
+          version: "550.0.0"
+      - name: configure docker authz
+        run: gcloud auth configure-docker "$REGISTRY"
+      - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        id: setup-go
+        with:
+          cache: true
+          go-version-file: go.mod
+      - run: go mod download
+      - uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ${{ env.KOCACHE }}
+          key: ${{ runner.os }}-ko-${{ hashFiles('go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-ko-
+      - id: build
+        name: build
+        run: |
+          image="$(ko build --bare --platform linux/amd64 --tags "$image_tag" ./backend/cmd/server)"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "revision=${image_tag}" >> "$GITHUB_OUTPUT"
+        env:
+          image_tag: ${{ github.sha }}
+          KO_DOCKER_REPO: ${{ env.REGISTRY }}/${{ steps.auth.outputs.project_id }}/backend/app
+  backend-deploy:
+    name: "backend: deploy"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+      - backend-build
+      - backend-test
+    environment:
+      name: production-backend
+    concurrency:
+      group: ${{ github.job }}-${{ github.head_ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: auth
+        uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_ACTIONS_SERVICE_ACCOUNT_EMAIL }}
+      - uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
+        with:
+          version: "550.0.0"
+      - uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
+        with:
+          service: production-backend
+          image: ${{ needs.backend-build.outputs.image }}
+          region: asia-northeast1
+          env_vars: |-
+            GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
+            SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
+            DB_FILE=/tmp/main.db
+          flags: |
+            --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
+          labels: |-
+            github-head-ref=${{ github.head_ref }}
+            github-job=${{ github.job }}
+            github-run-id=${{ github.run_id }}
+            github-run-number=${{ github.run_number }}
+            github-run-attempt=${{ github.run_attempt }}
+            github-sha=${{ github.sha }}
