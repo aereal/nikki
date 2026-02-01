@@ -4,12 +4,12 @@ import (
 	"database/sql"
 
 	"github.com/XSAM/otelsql"
-	_ "github.com/mattn/go-sqlite3"
 	"go.opentelemetry.io/otel/trace"
+	_ "modernc.org/sqlite"
 )
 
 func ProvideDB(tp trace.TracerProvider, ep Endpoint) (*sql.DB, error) {
-	db, err := otelsql.Open("sqlite3", ep.DataSourceName(),
+	db, err := otelsql.Open("sqlite", ep.DataSourceName(),
 		otelsql.WithTracerProvider(tp),
 	)
 	if err != nil {
