@@ -1,7 +1,6 @@
 package db
 
 import (
-	"bytes"
 	"net/url"
 )
 
@@ -33,7 +32,7 @@ func (ps *ParameterSet) query() url.Values {
 }
 
 type Endpoint interface {
-	DataSourceName() string
+	DataSourceName() (string, error)
 }
 
 type FileEndpoint struct {
@@ -43,13 +42,18 @@ type FileEndpoint struct {
 
 var _ Endpoint = (*FileEndpoint)(nil)
 
-func (e *FileEndpoint) DataSourceName() string {
-	buf := new(bytes.Buffer)
-	buf.WriteString("file:")
-	buf.WriteString(e.Path)
-	if qs := e.Params.query(); len(qs) > 0 {
-		buf.WriteByte('?')
-		buf.WriteString(qs.Encode())
+func (e *FileEndpoint) DataSourceName() (string, error) {
+	if e.Path == "" {
+		return "", ErrEmptyFile
 	}
-	return buf.String()
+
+	parsed, err := url.Parse(e.Path)
+	if err != nil {
+		return "", err
+	}
+	parsed.Scheme = "file"
+	if qs := e.Params.query(); len(qs) > 0 {
+		parsed.RawQuery = qs.Encode()
+	}
+	return parsed.String(), nil
 }

@@ -9,7 +9,11 @@ import (
 )
 
 func ProvideDB(tp trace.TracerProvider, ep Endpoint) (*sql.DB, error) {
-	db, err := otelsql.Open("sqlite", ep.DataSourceName(),
+	dsn, err := ep.DataSourceName()
+	if err != nil {
+		return nil, err
+	}
+	db, err := otelsql.Open("sqlite", dsn,
 		otelsql.WithTracerProvider(tp),
 	)
 	if err != nil {
