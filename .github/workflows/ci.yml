@@ -146,6 +146,7 @@ jobs:
       id-token: write
     needs:
       - backend-build
+      - backend-test
     environment:
       name: production-backend
     concurrency:
