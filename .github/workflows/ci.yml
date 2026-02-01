@@ -152,6 +152,8 @@ jobs:
     concurrency:
       group: ${{ github.job }}-${{ github.head_ref }}
       cancel-in-progress: true
+    env:
+      _db_mount_path: /mnt/main.db
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: auth
@@ -171,9 +173,11 @@ jobs:
           env_vars: |-
             GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
             SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
-            DB_FILE=/tmp/main.db
-          flags: |
+            DB_FILE=${{ env._db_mount_path }}
+          flags: >-
             --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
+            --add-volume name=db,type=cloud-storage,bucket=aereal-nikki-db,mount-options=metadata-cache-ttl-secs=0
+            --add-volume-mount volume=db,mount-path=${{ env._db_mount_path }}
           labels: |-
             github-head-ref=${{ github.head_ref }}
             github-job=${{ github.job }}
