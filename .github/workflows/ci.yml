@@ -138,3 +138,44 @@ jobs:
         env:
           image_tag: ${{ github.sha }}
           KO_DOCKER_REPO: ${{ env.REGISTRY }}/${{ steps.auth.outputs.project_id }}/backend/app
+  backend-deploy:
+    name: "backend: deploy"
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+      - backend-build
+    environment:
+      name: production-backend
+    concurrency:
+      group: ${{ github.job }}-${{ github.head_ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: auth
+        uses: "google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093" # v3.0.0
+        with:
+          create_credentials_file: true
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_ACTIONS_SERVICE_ACCOUNT_EMAIL }}
+      - uses: "google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db" # v3.0.1
+        with:
+          version: "550.0.0"
+      - uses: google-github-actions/deploy-cloudrun@2028e2d7d30a78c6910e0632e48dd561b064884d # v3.0.1
+        with:
+          service: production-backend
+          image: ${{ needs.backend-build.outputs.image }}
+          region: asia-northeast1
+          env_vars: |-
+            GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
+            OTEL_SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
+          flags: |
+            --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
+          labels: |-
+            github-head-ref=${{ github.head_ref }}
+            github-job=${{ github.job }}
+            github-run-id=${{ github.run_id }}
+            github-run-number=${{ github.run_number }}
+            github-run-attempt=${{ github.run_attempt }}
+            github-sha=${{ github.sha }}
