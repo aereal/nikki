@@ -5,6 +5,7 @@ package entrypoint
 import (
 	"context"
 
+	"github.com/aereal/nikki/backend/adapters/gcp/metadata"
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/graph/resolvers"
@@ -37,7 +38,7 @@ func NewDevEntrypoint(_ context.Context) (*Entrypoint, error) {
 		resolvers.ProvideResolver,
 		web.ProvideServer,
 		wire.Bind(new(trace.TracerProvider), new(*sdktrace.TracerProvider)),
-		wire.Value(log.GoogleCloudProject("dummy")),
+		wire.Value(metadata.Project("dummy")),
 		wire.Value(service.Environment("local")),
 	)
 	return nil, nil
