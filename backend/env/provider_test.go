@@ -9,6 +9,7 @@ import (
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/o11y/service"
+	"github.com/aereal/nikki/backend/testutils"
 	"github.com/aereal/nikki/backend/web"
 	"github.com/google/go-cmp/cmp"
 )
@@ -55,7 +56,7 @@ func TestProviders(t *testing.T) {
 			"invalid": {
 				provideFunc: env.ProvideLogLevel,
 				want:        0,
-				wantErr:     literalError(`slog: level string "abc": unknown name`),
+				wantErr:     testutils.LiteralError(`slog: level string "abc": unknown name`),
 				variables:   env.Variables{"LOG_LEVEL": "abc"},
 			},
 		},
@@ -136,15 +137,4 @@ func assertProvider[T any](t *testing.T, tc *result[T]) {
 	if diff := cmp.Diff(tc.want, got); diff != "" {
 		t.Errorf("value (-want, +got):\n%s", diff)
 	}
-}
-
-type literalError string
-
-func (l literalError) Error() string { return string(l) }
-
-func (l literalError) Is(other error) bool {
-	if other == nil {
-		return false
-	}
-	return string(l) == other.Error()
 }
