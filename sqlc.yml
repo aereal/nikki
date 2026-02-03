@@ -1,12 +1,26 @@
 ---
 version: "2"
+plugins:
+  - name: bulkinsert
+    process:
+      cmd: sqlc-plugin-bulk-go
 sql:
   - engine: sqlite
     schema: "./backend/infra/db/schema.sql"
     queries: "./backend/infra/db/queries.sql"
+    codegen:
+      - plugin: bulkinsert
+        out: ./backend/infra/db/queries
+        options:
+          package: queries
     gen:
       go:
         out: "./backend/infra/db/queries"
         output_db_file_name: "db_gen.go"
         output_models_file_name: "models_gen.go"
         output_files_suffix: _gen
+        overrides:
+          - column: categories.category_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: "CategoryID"

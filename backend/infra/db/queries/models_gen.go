@@ -4,7 +4,11 @@
 
 package queries
 
+import (
+	"github.com/aereal/nikki/backend/domain"
+)
+
 type Category struct {
-	CategoryID string
+	CategoryID domain.CategoryID
 	Name       string
 }

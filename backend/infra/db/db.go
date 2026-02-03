@@ -1,3 +1,5 @@
+//go:generate go tool sqlc generate -f ../../../sqlc.yml
+
 package db
 
 import (

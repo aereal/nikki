@@ -7,7 +7,52 @@ package queries
 
 import (
 	"context"
+	"strings"
+
+	"github.com/aereal/nikki/backend/domain"
 )
+
+const findCategoriesByNames = `-- name: FindCategoriesByNames :many
+select
+  category_id, name
+from
+  categories
+where
+  name in (/*SLICE:names*/?)
+`
+
+func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]Category, error) {
+	query := findCategoriesByNames
+	var queryParams []interface{}
+	if len(names) > 0 {
+		for _, v := range names {
+			queryParams = append(queryParams, v)
+		}
+		query = strings.Replace(query, "/*SLICE:names*/?", strings.Repeat(",?", len(names))[1:], 1)
+	} else {
+		query = strings.Replace(query, "/*SLICE:names*/?", "NULL", 1)
+	}
+	rows, err := q.db.QueryContext(ctx, query, queryParams...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Category
+	for rows.Next() {
+		var i Category
+		if err := rows.Scan(&i.CategoryID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const importCategories = `-- name: ImportCategories :exec
 insert into
@@ -17,7 +62,7 @@ values
 `
 
 type ImportCategoriesParams struct {
-	CategoryID string
+	CategoryID domain.CategoryID
 	Name       string
 }
 
