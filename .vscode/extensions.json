@@ -1,10 +1,12 @@
 {
   "recommendations": [
-    "Vue.volar",
-    "vitest.explorer",
-    "ms-playwright.playwright",
     "dbaeumer.vscode-eslint",
-    "EditorConfig.EditorConfig",
-    "prettier.prettier-vscode"
+    "esbenp.prettier-vscode",
+    "golang.go",
+    "graphql.vscode-graphql-syntax",
+    "graphql.vscode-graphql",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "Vue.volar",
   ]
 }
