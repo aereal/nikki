@@ -1,0 +1,72 @@
+package db
+
+import (
+	"context"
+
+	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/exec"
+	"github.com/aereal/nikki/backend/infra/db/queries"
+	"github.com/aereal/nikki/backend/o11y"
+	"go.opentelemetry.io/otel/trace"
+)
+
+func ProvideArticleRepository(tp trace.TracerProvider, execCtx exec.Context) *ArticleRepository {
+	return &ArticleRepository{
+		tracer:  tp.Tracer("github.com/aereal/nikki/backend/infra/db.ArticleRepository"),
+		execCtx: execCtx,
+	}
+}
+
+type ArticleRepository struct {
+	tracer  trace.Tracer
+	execCtx exec.Context
+}
+
+var _ domain.ArticleRepository = (*ArticleRepository)(nil)
+
+func (r *ArticleRepository) ImportArticles(ctx context.Context, aggregate *domain.ImportArticlesAggregate) (err error) {
+	ctx, span := r.tracer.Start(ctx, "ImportArticles")
+	defer func() { o11y.FinishSpan(span, err) }()
+
+	if err := r.createArticles(ctx, aggregate.Articles); err != nil {
+		return err
+	}
+	if err := r.createRevisions(ctx, aggregate.Articles); err != nil {
+		return err
+	}
+	if err := r.createArticlePublications(ctx, aggregate.Articles); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ArticleRepository) createArticles(ctx context.Context, articles []*domain.ArticleToImport) error {
+	params := make(queries.BulkCreateArticlesParams, len(articles))
+	for i, a := range articles {
+		params[i].ArticleID = a.Article.ArticleID
+		params[i].Slug = a.Slug
+	}
+	return queries.New(r.execCtx).BulkCreateArticles(ctx, params)
+}
+
+func (r *ArticleRepository) createRevisions(ctx context.Context, articles []*domain.ArticleToImport) error {
+	params := make(queries.BulkCreateArticleRevisionsParams, len(articles))
+	for i, a := range articles {
+		params[i].ArticleID = a.ArticleRevision.ArticleID
+		params[i].ArticleRevisionID = a.ArticleRevisionID
+		params[i].Title = a.Title
+		params[i].Body = a.Body
+		params[i].AuthoredAt = a.AuthoredAt
+	}
+	return queries.New(r.execCtx).BulkCreateArticleRevisions(ctx, params)
+}
+
+func (r *ArticleRepository) createArticlePublications(ctx context.Context, articles []*domain.ArticleToImport) error {
+	params := make(queries.BulkCreateArticlePublicationsParams, len(articles))
+	for i, a := range articles {
+		params[i].ArticleID = a.Article.ArticleID
+		params[i].ArticleRevisionID = a.ArticleRevisionID
+		params[i].PublishedAt = a.AuthoredAt
+	}
+	return queries.New(r.execCtx).BulkCreateArticlePublications(ctx, params)
+}

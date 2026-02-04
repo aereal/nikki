@@ -8,9 +8,77 @@ package queries
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/aereal/nikki/backend/domain"
 )
+
+const createArticlePublications = `-- name: CreateArticlePublications :exec
+insert into
+  article_publications (article_id, article_revision_id, published_at)
+values
+  (?, ?, ?)
+`
+
+type CreateArticlePublicationsParams struct {
+	ArticleID         domain.ArticleID
+	ArticleRevisionID domain.ArticleRevisionID
+	PublishedAt       time.Time
+}
+
+func (q *Queries) CreateArticlePublications(ctx context.Context, arg CreateArticlePublicationsParams) error {
+	_, err := q.db.ExecContext(ctx, createArticlePublications, arg.ArticleID, arg.ArticleRevisionID, arg.PublishedAt)
+	return err
+}
+
+const createArticleRevisions = `-- name: CreateArticleRevisions :exec
+insert into
+  article_revisions (
+    article_revision_id,
+    article_id,
+    title,
+    body,
+    authored_at
+  )
+values
+  (?, ?, ?, ?, ?)
+`
+
+type CreateArticleRevisionsParams struct {
+	ArticleRevisionID domain.ArticleRevisionID
+	ArticleID         domain.ArticleID
+	Title             string
+	Body              string
+	AuthoredAt        time.Time
+}
+
+func (q *Queries) CreateArticleRevisions(ctx context.Context, arg CreateArticleRevisionsParams) error {
+	_, err := q.db.ExecContext(ctx, createArticleRevisions,
+		arg.ArticleRevisionID,
+		arg.ArticleID,
+		arg.Title,
+		arg.Body,
+		arg.AuthoredAt,
+	)
+	return err
+}
+
+const createArticles = `-- name: CreateArticles :exec
+insert into
+  articles (article_id, slug)
+values
+  (?, ?)
+`
+
+type CreateArticlesParams struct {
+	ArticleID domain.ArticleID
+	Slug      string
+}
+
+func (q *Queries) CreateArticles(ctx context.Context, arg CreateArticlesParams) error {
+	_, err := q.db.ExecContext(ctx, createArticles, arg.ArticleID, arg.Slug)
+	return err
+}
 
 const findCategoriesByNames = `-- name: FindCategoriesByNames :many
 select

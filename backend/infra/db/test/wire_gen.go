@@ -31,3 +31,20 @@ func NewTestCategoryRepository(contextContext context.Context) (*TestCategoryRep
 	testCategoryRepository := provideTestCategoryRepository(testProvisionedDB, categoryRepository)
 	return testCategoryRepository, nil
 }
+
+func NewTestArticleRepository(contextContext context.Context) (*TestArticleRepository, error) {
+	tracerProvider := o11y.ProvideNoopTracerProvider()
+	memoryEndpoint := db.ProvideMemoryEndpoint()
+	sqlDB, err := db.ProvideDB(tracerProvider, memoryEndpoint)
+	if err != nil {
+		return nil, err
+	}
+	testProvisionedDB, err := provideProvisionedDB(contextContext, sqlDB)
+	if err != nil {
+		return nil, err
+	}
+	runner := exec.ProvideRunner(sqlDB)
+	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
+	testArticleRepository := provideTestArticleRepository(testProvisionedDB, articleRepository)
+	return testArticleRepository, nil
+}

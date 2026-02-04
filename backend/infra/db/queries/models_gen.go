@@ -5,8 +5,29 @@
 package queries
 
 import (
+	"time"
+
 	"github.com/aereal/nikki/backend/domain"
 )
+
+type Article struct {
+	ArticleID domain.ArticleID
+	Slug      string
+}
+
+type ArticlePublication struct {
+	ArticleID         domain.ArticleID
+	ArticleRevisionID domain.ArticleRevisionID
+	PublishedAt       time.Time
+}
+
+type ArticleRevision struct {
+	ArticleRevisionID domain.ArticleRevisionID
+	ArticleID         domain.ArticleID
+	Title             string
+	Body              string
+	AuthoredAt        time.Time
+}
 
 type Category struct {
 	CategoryID domain.CategoryID

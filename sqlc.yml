@@ -24,3 +24,29 @@ sql:
             go_type:
               import: "github.com/aereal/nikki/backend/domain"
               type: "CategoryID"
+          - column: articles.article_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleID
+          - column: article_revisions.article_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleID
+          - column: article_revisions.article_revision_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleRevisionID
+          - column: article_revisions.authored_at
+            go_type:
+              type: "time.Time"
+          - column: article_publications.article_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleID
+          - column: article_publications.article_revision_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleRevisionID
+          - column: article_publications.published_at
+            go_type:
+              type: "time.Time"

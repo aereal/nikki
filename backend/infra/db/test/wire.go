@@ -25,3 +25,18 @@ func NewTestCategoryRepository(_ context.Context) (*TestCategoryRepository, erro
 	)
 	return nil, nil
 }
+
+func NewTestArticleRepository(_ context.Context) (*TestArticleRepository, error) {
+	wire.Build(
+		db.ProvideArticleRepository,
+		db.ProvideDB,
+		db.ProvideMemoryEndpoint,
+		exec.ProvideRunner,
+		o11y.ProvideNoopTracerProvider,
+		provideProvisionedDB,
+		provideTestArticleRepository,
+		wire.Bind(new(db.Endpoint), new(*db.MemoryEndpoint)),
+		wire.Bind(new(exec.Context), new(*exec.Runner)),
+	)
+	return nil, nil
+}
