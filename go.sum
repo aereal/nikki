@@ -11,6 +11,12 @@ github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0
 github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.30.0/go.mod h1:P4WPRUkOhJC13W//jWpyfJNDAIpvRbAUIYLX/4jtlE0=
 github.com/XSAM/otelsql v0.41.0 h1:uZifjQhZhv5EDYJh+IVk1DiYxQZJBlNSen0MBFnfxB8=
 github.com/XSAM/otelsql v0.41.0/go.mod h1:NMQT0PiKoFILp9QgjQz+D5mvW+9mT0suR7OejqrtMaM=
+github.com/aereal/coll v0.6.0 h1:Yr/KhMPYX2vGM0eb9BETzZFvDTmFvwzipOAtEpvBNjo=
+github.com/aereal/coll v0.6.0/go.mod h1:7/Rsf/eOx8sEbWeFNjSUVG/ykfZxejX+h3leWRkaEdc=
+github.com/aereal/iter v0.8.0 h1:PdsIJIqOCrvz9AFyyCZjPceAACy/xby5PIc5+hXbTig=
+github.com/aereal/iter v0.8.0/go.mod h1:90HlBmkcrMPBtQQoIfQWMlAmYXLuNuoYncn8P042b20=
+github.com/aereal/mt v0.1.0 h1:N2Qgy3YXJGGJq6eXDxf5yqFpKneRc2mDnaPasEGKIdY=
+github.com/aereal/mt v0.1.0/go.mod h1:mlHIhy66voLFMS45bFFAgOyot4qlK/YHzfjBMqAhbUQ=
 github.com/aereal/otelgqlgen v0.11.0 h1:qnmX7XstyKKx9yyWATeCAK/I4TZjjQG+3RVgtSZVXSM=
 github.com/aereal/otelgqlgen v0.11.0/go.mod h1:hvbLmFLAECtNcURBFkJgx21yRCDL2QiEEhZPt1oK0qw=
 github.com/agnivade/levenshtein v1.2.1 h1:EHBY3UOn1gwdy/VbFwgo4cxecRznFk7fKWN1KOX7eoM=

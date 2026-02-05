@@ -5,6 +5,9 @@ go 1.25.1
 require (
 	github.com/99designs/gqlgen v0.17.86
 	github.com/XSAM/otelsql v0.41.0
+	github.com/aereal/coll v0.6.0
+	github.com/aereal/iter v0.8.0
+	github.com/aereal/mt v0.1.0
 	github.com/aereal/otelgqlgen v0.11.0
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/go-cmp v0.7.0
