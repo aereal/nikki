@@ -21,3 +21,9 @@ create table categories (
   category_id text primary key,
   name text not null unique
 );
+
+create table article_category_mappings (
+  article_id text not null references articles (article_id),
+  category_id text not null references categories (category_id),
+  primary key (article_id, category_id)
+);

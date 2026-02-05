@@ -12,7 +12,20 @@ import (
 func TestArticleRepository(t *testing.T) {
 	t.Parallel()
 
-	r, err := test.NewTestArticleRepository(t.Context())
+	categoryRepo, err := test.NewTestCategoryRepository(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	categoryNames := []string{"a", "b"}
+	if err := categoryRepo.ImportCategories(t.Context(), categoryNames); err != nil {
+		t.Fatal(err)
+	}
+	categories, err := categoryRepo.FindCategoriesByNames(t.Context(), categoryNames)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	articleRepo, err := test.NewTestArticleRepository(t.Context())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,6 +45,7 @@ func TestArticleRepository(t *testing.T) {
 					Body:              "<p>body</p>",
 					AuthoredAt:        time.Now(),
 				},
+				Categories: categories,
 			},
 			{
 				Article: &domain.Article{
@@ -45,10 +59,11 @@ func TestArticleRepository(t *testing.T) {
 					Body:              "<p>body</p>",
 					AuthoredAt:        time.Now(),
 				},
+				Categories: categories[1:],
 			},
 		},
 	}
-	if err := r.ImportArticles(t.Context(), aggregate); err != nil {
+	if err := articleRepo.ImportArticles(t.Context(), aggregate); err != nil {
 		t.Fatal(err)
 	}
 }

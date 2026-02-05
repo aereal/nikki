@@ -138,3 +138,20 @@ func (q *Queries) ImportCategories(ctx context.Context, arg ImportCategoriesPara
 	_, err := q.db.ExecContext(ctx, importCategories, arg.CategoryID, arg.Name)
 	return err
 }
+
+const mapArticleCategory = `-- name: MapArticleCategory :exec
+insert into
+  article_category_mappings (article_id, category_id)
+values
+  (?, ?)
+`
+
+type MapArticleCategoryParams struct {
+	ArticleID  domain.ArticleID
+	CategoryID domain.CategoryID
+}
+
+func (q *Queries) MapArticleCategory(ctx context.Context, arg MapArticleCategoryParams) error {
+	_, err := q.db.ExecContext(ctx, mapArticleCategory, arg.ArticleID, arg.CategoryID)
+	return err
+}

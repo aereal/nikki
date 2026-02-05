@@ -35,3 +35,9 @@ insert into
   article_publications (article_id, article_revision_id, published_at)
 values
   (?, ?, ?);
+
+-- name: MapArticleCategory :exec
+insert into
+  article_category_mappings (article_id, category_id)
+values
+  (?, ?);

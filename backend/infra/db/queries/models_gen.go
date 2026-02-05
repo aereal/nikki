@@ -15,6 +15,11 @@ type Article struct {
 	Slug      string
 }
 
+type ArticleCategoryMapping struct {
+	ArticleID  domain.ArticleID
+	CategoryID domain.CategoryID
+}
+
 type ArticlePublication struct {
 	ArticleID         domain.ArticleID
 	ArticleRevisionID domain.ArticleRevisionID

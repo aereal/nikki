@@ -37,6 +37,9 @@ func (r *ArticleRepository) ImportArticles(ctx context.Context, aggregate *domai
 	if err := r.createArticlePublications(ctx, aggregate.Articles); err != nil {
 		return err
 	}
+	if err := r.createArticleCategoryMappings(ctx, aggregate.Articles); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -69,4 +72,17 @@ func (r *ArticleRepository) createArticlePublications(ctx context.Context, artic
 		params[i].PublishedAt = a.AuthoredAt
 	}
 	return queries.New(r.execCtx).BulkCreateArticlePublications(ctx, params)
+}
+
+func (r *ArticleRepository) createArticleCategoryMappings(ctx context.Context, articles []*domain.ArticleToImport) error {
+	params := make(queries.BulkMapArticleCategoryParams, 0)
+	for _, a := range articles {
+		for _, c := range a.Categories {
+			params = append(params, queries.MapArticleCategoryParams{
+				ArticleID:  a.Article.ArticleID,
+				CategoryID: c.CategoryID,
+			})
+		}
+	}
+	return queries.New(r.execCtx).BulkMapArticleCategory(ctx, params)
 }

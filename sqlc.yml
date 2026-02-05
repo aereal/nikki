@@ -50,3 +50,11 @@ sql:
           - column: article_publications.published_at
             go_type:
               type: "time.Time"
+          - column: article_category_mappings.article_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: ArticleID
+          - column: article_category_mappings.category_id
+            go_type:
+              import: "github.com/aereal/nikki/backend/domain"
+              type: "CategoryID"
