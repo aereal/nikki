@@ -21,6 +21,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.39.0
 	go.opentelemetry.io/otel/sdk v1.39.0
 	go.opentelemetry.io/otel/trace v1.39.0
+	go.uber.org/mock v0.6.0
 	google.golang.org/grpc v1.78.0
 	modernc.org/sqlite v1.44.3
 )
@@ -103,4 +104,5 @@ tool (
 	github.com/99designs/gqlgen
 	github.com/google/wire/cmd/wire
 	github.com/sqlc-dev/sqlc/cmd/sqlc
+	go.uber.org/mock/mockgen
 )
