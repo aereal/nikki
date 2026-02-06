@@ -13,7 +13,15 @@ type Output io.Writer
 
 func ProvideStdout() Output { return os.Stdout }
 
-func ProvideLogger(output Output, level slog.Level, project metadata.Project, version service.Version) *slog.Logger {
+func ProvideLogger(output Output, level slog.Level, version service.Version) *slog.Logger {
+	return newLogger(output, level, version, "")
+}
+
+func ProvideCloudTraceLinkedLogger(output Output, level slog.Level, project metadata.Project, version service.Version) *slog.Logger {
+	return newLogger(output, level, version, project)
+}
+
+func newLogger(output Output, level slog.Level, version service.Version, project metadata.Project) *slog.Logger {
 	h := slog.NewJSONHandler(output, &slog.HandlerOptions{
 		Level: level,
 	})
