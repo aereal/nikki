@@ -12,23 +12,24 @@ package mock
 import (
 	reflect "reflect"
 
+	ports "github.com/aereal/nikki/backend/usecases/ports"
 	gomock "go.uber.org/mock/gomock"
 )
 
 // MockIDGenerator is a mock of IDGenerator interface.
-type MockIDGenerator[ID any] struct {
+type MockIDGenerator[ID ports.IDish] struct {
 	ctrl     *gomock.Controller
 	recorder *MockIDGeneratorMockRecorder[ID]
 	isgomock struct{}
 }
 
 // MockIDGeneratorMockRecorder is the mock recorder for MockIDGenerator.
-type MockIDGeneratorMockRecorder[ID any] struct {
+type MockIDGeneratorMockRecorder[ID ports.IDish] struct {
 	mock *MockIDGenerator[ID]
 }
 
 // NewMockIDGenerator creates a new mock instance.
-func NewMockIDGenerator[ID any](ctrl *gomock.Controller) *MockIDGenerator[ID] {
+func NewMockIDGenerator[ID ports.IDish](ctrl *gomock.Controller) *MockIDGenerator[ID] {
 	mock := &MockIDGenerator[ID]{ctrl: ctrl}
 	mock.recorder = &MockIDGeneratorMockRecorder[ID]{mock}
 	return mock
@@ -55,7 +56,7 @@ func (mr *MockIDGeneratorMockRecorder[ID]) GenerateID() *MockIDGeneratorGenerate
 }
 
 // MockIDGeneratorGenerateIDCall wrap *gomock.Call
-type MockIDGeneratorGenerateIDCall[ID any] struct {
+type MockIDGeneratorGenerateIDCall[ID ports.IDish] struct {
 	*gomock.Call
 }
 

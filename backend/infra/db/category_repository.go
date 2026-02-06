@@ -10,16 +10,18 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func ProvideCategoryRepository(tp trace.TracerProvider, execCtx exec.Context) *CategoryRepository {
+func ProvideCategoryRepository(tp trace.TracerProvider, execCtx exec.Context, idGen IDGenerator[domain.CategoryID]) *CategoryRepository {
 	return &CategoryRepository{
-		execCtx: execCtx,
-		tracer:  tp.Tracer("github.com/aereal/nikki/backend/infra/db.CategoryRepository"),
+		execCtx:     execCtx,
+		tracer:      tp.Tracer("github.com/aereal/nikki/backend/infra/db.CategoryRepository"),
+		idGenerator: idGen,
 	}
 }
 
 type CategoryRepository struct {
-	tracer  trace.Tracer
-	execCtx exec.Context
+	tracer      trace.Tracer
+	execCtx     exec.Context
+	idGenerator IDGenerator[domain.CategoryID]
 }
 
 var _ domain.CategoryRepository = (*CategoryRepository)(nil)
@@ -35,7 +37,7 @@ func (r *CategoryRepository) ImportCategories(ctx context.Context, names []strin
 	params := queries.BulkImportCategoriesParams{}
 	for _, name := range names {
 		params = append(params, queries.ImportCategoriesParams{
-			CategoryID: GenerateID[domain.CategoryID](),
+			CategoryID: r.idGenerator.GenerateID(),
 			Name:       name,
 		})
 	}

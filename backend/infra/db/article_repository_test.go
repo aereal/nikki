@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/aereal/nikki/backend/domain"
-	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/infra/db/test"
 )
 
@@ -29,8 +28,8 @@ func TestArticleRepository(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	articleID1 := db.GenerateID[domain.ArticleID]()
-	articleID2 := db.GenerateID[domain.ArticleID]()
+	articleID1 := articleRepo.ArticleIDGenerator.GenerateID()
+	articleID2 := articleRepo.ArticleIDGenerator.GenerateID()
 	aggregate := &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
@@ -40,7 +39,7 @@ func TestArticleRepository(t *testing.T) {
 				},
 				ArticleRevision: &domain.ArticleRevision{
 					ArticleID:         articleID1,
-					ArticleRevisionID: db.GenerateID[domain.ArticleRevisionID](),
+					ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
 					Title:             "title",
 					Body:              "<p>body</p>",
 					AuthoredAt:        time.Now(),
@@ -54,7 +53,7 @@ func TestArticleRepository(t *testing.T) {
 				},
 				ArticleRevision: &domain.ArticleRevision{
 					ArticleID:         articleID2,
-					ArticleRevisionID: db.GenerateID[domain.ArticleRevisionID](),
+					ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
 					Title:             "title",
 					Body:              "<p>body</p>",
 					AuthoredAt:        time.Now(),

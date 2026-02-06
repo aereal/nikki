@@ -3,6 +3,9 @@ package exec
 import (
 	"context"
 	"database/sql"
+	"fmt"
+
+	"github.com/aereal/nikki/backend/usecases/unitofwork"
 )
 
 func ProvideRunner(db *sql.DB) *Runner {
@@ -13,7 +16,24 @@ type Runner struct {
 	db *sql.DB
 }
 
-var _ Context = (*Runner)(nil)
+var (
+	_ Context           = (*Runner)(nil)
+	_ unitofwork.Runner = (*Runner)(nil)
+)
+
+func (r *Runner) StartUnitOfWork(ctx context.Context) (context.Context, unitofwork.Finisher, error) {
+	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
+	if err != nil {
+		return ctx, unitofwork.NoopFinisher, fmt.Errorf("sql.DB.BeginTx: %w", err)
+	}
+	return contextWithTx(ctx, tx), func(err error) {
+		if err != nil {
+			_ = tx.Rollback()
+		} else {
+			_ = tx.Commit()
+		}
+	}, nil
+}
 
 func (r *Runner) getContext(ctx context.Context) Context {
 	if tx, ok := getTxFromContext(ctx); ok {
