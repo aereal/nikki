@@ -85,6 +85,8 @@ jobs:
       - run: go mod download
       - name: go test
         run: go test -coverpkg=./... -coverprofile=./coverage.out -timeout=30s ./backend/...
+        env:
+          TZ: Asia/Tokyo
       - uses: k1LoW/octocov-action@73d561f65d59e66899ed5c87e4621a913b5d5c20 # v1.5.0
         with:
           version: v0.74.1
@@ -174,6 +176,7 @@ jobs:
             GOOGLE_CLOUD_PROJECT=${{ steps.auth.outputs.project_id }}
             SERVICE_VERSION=${{ needs.backend-build.outputs.revision }}
             DB_FILE=${{ env._db_mount_path }}/main.db
+            TZ=Asia/Tokyo
           flags: >-
             --service-account cloud-run@${{ steps.auth.outputs.project_id }}.iam.gserviceaccount.com
             --add-volume name=db,type=cloud-storage,bucket=aereal-nikki-db,mount-options=metadata-cache-ttl-secs=0

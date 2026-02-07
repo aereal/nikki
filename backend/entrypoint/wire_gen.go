@@ -8,7 +8,6 @@ package entrypoint
 
 import (
 	"context"
-	"github.com/aereal/nikki/backend/adapters/gcp/metadata"
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/graph/resolvers"
@@ -28,12 +27,11 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	project := _wireProjectValue
 	version, err := provideDynamicServiceVersion(contextContext)
 	if err != nil {
 		return nil, err
 	}
-	logger := log.ProvideLogger(output, level, project, version)
+	logger := log.ProvideLogger(output, level, version)
 	globalInstrumentationToken := log.ProvideGlobalInstrumentation(logger)
 	exporter, err := o11y.ProvideSidecarExporter(contextContext)
 	if err != nil {
@@ -65,7 +63,6 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 }
 
 var (
-	_wireProjectValue     = metadata.Project("dummy")
 	_wireEnvironmentValue = service.Environment("local")
 )
 
@@ -84,7 +81,7 @@ func NewProductionEntrypoint(contextContext context.Context) (*Entrypoint, error
 	if err != nil {
 		return nil, err
 	}
-	logger := log.ProvideLogger(output, level, project, version)
+	logger := log.ProvideCloudTraceLinkedLogger(output, level, project, version)
 	globalInstrumentationToken := log.ProvideGlobalInstrumentation(logger)
 	exporter, err := o11y.ProvideGoogleTelemetryTraceExporter(contextContext)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"github.com/aereal/nikki/backend/adapters/gcp/metadata"
 	"github.com/aereal/nikki/backend/infra/db"
 	"github.com/aereal/nikki/backend/o11y/service"
+	"github.com/aereal/nikki/backend/usecases/interactions"
 	"github.com/aereal/nikki/backend/web"
 )
 
@@ -50,4 +51,12 @@ func ProvideServiceVersion(vars Variables) (service.Version, error) {
 		return "", err
 	}
 	return version, nil
+}
+
+func ProvideMTExportFileName(vars Variables) (interactions.MTExportFileName, error) {
+	var name interactions.MTExportFileName
+	if err := scannerWithParse(stringAs[interactions.MTExportFileName])(vars, "MT_EXPORT_FILE", &name); err != nil {
+		return "", err
+	}
+	return name, nil
 }

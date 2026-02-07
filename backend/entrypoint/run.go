@@ -6,9 +6,9 @@ type ExitCode int
 
 func Run(e *Entrypoint, err error) int {
 	if err != nil {
-		return exitCodeOf(err)
+		return ExitCodeOf(err)
 	}
 
 	defer func() { _ = e.tp.Shutdown(context.WithoutCancel(e.ctx)) }()
-	return exitCodeOf(e.server.Start(e.ctx))
+	return ExitCodeOf(e.server.Start(e.ctx))
 }

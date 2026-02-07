@@ -1,0 +1,64 @@
+AUTHOR: Foo Bar
+TITLE: A dummy title
+BASENAME: filename
+STATUS: Publish
+ALLOW COMMENTS: 1
+ALLOW PINGS: 1
+CONVERT BREAKS: richtext
+PRIMARY CATEGORY: News
+CATEGORY: News
+CATEGORY: Product
+DATE: 08/08/2007 03:00:00 PM
+TAGS: "Movable Type",foo,bar
+-----
+BODY:
+これは本文です。
+-----
+EXTENDED BODY:
+ここに追記の本文が表示されます。
+-----
+COMMENT:
+AUTHOR: Foo
+DATE: 01/31/2002 15:47:06
+ここに
+このコメントの本文が来ます。
+-----
+COMMENT:
+AUTHOR: Bar
+DATE: 02/01/2002 04:02:07 AM
+IP: 205.66.1.32
+EMAIL: me@bar.com
+これは2番目の
+コメントです。 これは
+ここまで来ます。
+-----
+--------
+AUTHOR: Foo Bar
+TITLE: 2件目の記事
+BASENAME: filename
+STATUS: Publish
+ALLOW COMMENTS: 1
+ALLOW PINGS: 1
+CONVERT BREAKS: richtext
+PRIMARY CATEGORY: News
+CATEGORY: News
+CATEGORY: Product
+DATE: 08/08/2007 03:00:00 PM
+TAGS: "Movable Type",foo,bar
+CF50_BASENAME: textdata
+-----
+BODY:
+これは2番目の記事の本文です。 これは
+複数行から成ります。
+-----
+EXCERPT:
+この記事は追記がありませんが、
+概要はあります。 特殊な例です。
+-----
+COMMENT:
+AUTHOR: Quux
+URL: <a href="http://www.quux.com/">http://www.quux.com/</a>
+DATE: 01/31/2002 04:23:01 PM
+この記事に対する最初のコメントを示します。
+-----
+--------

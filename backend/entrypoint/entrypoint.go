@@ -21,7 +21,7 @@ type Entrypoint struct {
 	tp     *sdktrace.TracerProvider
 }
 
-func exitCodeOf(err error) (code int) {
+func ExitCodeOf(err error) (code int) {
 	defer func() {
 		level := slog.LevelDebug
 		if code > 0 {

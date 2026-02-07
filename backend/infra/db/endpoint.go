@@ -57,3 +57,13 @@ func (e *FileEndpoint) DataSourceName() (string, error) {
 	}
 	return parsed.String(), nil
 }
+
+func ProvideMemoryEndpoint() *MemoryEndpoint { return &MemoryEndpoint{} }
+
+type MemoryEndpoint struct{}
+
+var _ Endpoint = (*MemoryEndpoint)(nil)
+
+func (*MemoryEndpoint) DataSourceName() (string, error) {
+	return ":memory:", nil
+}
