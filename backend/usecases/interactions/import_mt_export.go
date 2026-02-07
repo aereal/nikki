@@ -112,10 +112,11 @@ func (i *ImportMTExport) importCategories(ctx context.Context, entries map[domai
 		return map[string]*domain.Category{}, nil
 	}
 
-	if err := i.categoryRepository.ImportCategories(ctx, slices.Collect(allNames.Values())); err != nil {
+	categoryNames := slices.Collect(allNames.Values())
+	if err := i.categoryRepository.ImportCategories(ctx, categoryNames); err != nil {
 		return nil, fmt.Errorf("domain.CategoryRepository.ImportCategories: %w", err)
 	}
-	cats, err := i.categoryRepository.FindCategoriesByNames(ctx, slices.Collect(allNames.Values()))
+	cats, err := i.categoryRepository.FindCategoriesByNames(ctx, categoryNames)
 	if err != nil {
 		return nil, fmt.Errorf("domain.CategoryRepository.FindCategoriesByNames: %w", err)
 	}
