@@ -5,15 +5,21 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/aereal/nikki/backend/o11y"
 	"github.com/aereal/nikki/backend/usecases/unitofwork"
+	"go.opentelemetry.io/otel/trace"
 )
 
-func ProvideRunner(db *sql.DB) *Runner {
-	return &Runner{db: db}
+func ProvideRunner(tp trace.TracerProvider, db *sql.DB) *Runner {
+	return &Runner{
+		db:     db,
+		tracer: tp.Tracer("github.com/aereal/nikki/backend/infra/db/exec.Runner"),
+	}
 }
 
 type Runner struct {
-	db *sql.DB
+	db     *sql.DB
+	tracer trace.Tracer
 }
 
 var (
@@ -22,15 +28,17 @@ var (
 )
 
 func (r *Runner) StartUnitOfWork(ctx context.Context) (context.Context, unitofwork.Finisher, error) {
+	ctx, span := r.tracer.Start(ctx, "StartUnitOfWork")
+
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return ctx, unitofwork.NoopFinisher, fmt.Errorf("sql.DB.BeginTx: %w", err)
 	}
-	return contextWithTx(ctx, tx), func(err error) {
-		if err != nil {
-			_ = tx.Rollback()
+	return contextWithTx(ctx, tx), func(upstreamErr error) {
+		if upstreamErr != nil {
+			o11y.FinishSpan(span, tx.Rollback())
 		} else {
-			_ = tx.Commit()
+			o11y.FinishSpan(span, tx.Commit())
 		}
 	}, nil
 }

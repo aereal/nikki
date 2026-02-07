@@ -47,7 +47,7 @@ func build(contextContext context.Context) (*app, error) {
 	if err != nil {
 		return nil, err
 	}
-	runner := exec.ProvideRunner(sqlDB)
+	runner := exec.ProvideRunner(tracerProvider, sqlDB)
 	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
 	idGenerator := db.ProvideCategoryIDGenerator()
 	categoryRepository := db.ProvideCategoryRepository(tracerProvider, runner, idGenerator)

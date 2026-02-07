@@ -26,7 +26,7 @@ func NewTestCategoryRepository(contextContext context.Context) (*TestCategoryRep
 	if err != nil {
 		return nil, err
 	}
-	runner := exec.ProvideRunner(sqlDB)
+	runner := exec.ProvideRunner(tracerProvider, sqlDB)
 	idGenerator := db.ProvideCategoryIDGenerator()
 	categoryRepository := db.ProvideCategoryRepository(tracerProvider, runner, idGenerator)
 	testCategoryRepository := provideTestCategoryRepository(testProvisionedDB, categoryRepository)
@@ -44,7 +44,7 @@ func NewTestArticleRepository(contextContext context.Context) (*TestArticleRepos
 	if err != nil {
 		return nil, err
 	}
-	runner := exec.ProvideRunner(sqlDB)
+	runner := exec.ProvideRunner(tracerProvider, sqlDB)
 	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
 	idGenerator := db.ProvideArticleIDGenerator()
 	dbIDGenerator := db.ProvideArticleRevisionIDGenerator()
