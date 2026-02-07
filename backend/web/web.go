@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	neturl "net/url"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/log/attr"
+	"github.com/rs/cors"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/trace"
@@ -75,5 +77,23 @@ func (s *Server) handler() http.Handler {
 			}
 			return r.Method + " " + r.URL.Path
 		}),
-	)(mux)
+	)(withCors(mux))
 }
+
+func withCors(next http.Handler) http.Handler {
+	opts := cors.Options{
+		AllowedMethods: []string{http.MethodPost, http.MethodGet, http.MethodHead},
+		AllowedHeaders: []string{"*"},
+		AllowOriginVaryRequestFunc: func(r *http.Request, origin string) (bool, []string) {
+			url, err := neturl.Parse(origin)
+			if err != nil {
+				slog.WarnContext(r.Context(), "failed to parse origin", slog.String("origin", origin), attr.Error(err))
+				return false, nil
+			}
+			return isLocalhost(url), []string{"origin"}
+		},
+	}
+	return cors.New(opts).Handler(next)
+}
+
+func isLocalhost(url *neturl.URL) bool { return url.Scheme == "http" && url.Hostname() == "localhost" }

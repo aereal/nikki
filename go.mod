@@ -12,6 +12,7 @@ require (
 	github.com/goccy/go-yaml v1.19.2
 	github.com/google/go-cmp v0.7.0
 	github.com/google/wire v0.7.0
+	github.com/rs/cors v1.11.1
 	github.com/rs/xid v1.6.0
 	github.com/vektah/gqlparser/v2 v2.5.31
 	go.opentelemetry.io/contrib/detectors/gcp v1.39.0
