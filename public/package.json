@@ -18,6 +18,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "unplugin-vue-router": "0.19.2",
     "vue": "3.5.27",
     "vue-router": "4.6.4"
   },
