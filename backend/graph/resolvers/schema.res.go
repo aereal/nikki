@@ -8,7 +8,13 @@ import (
 )
 
 func (r *queryResolver) Article(ctx context.Context, slug string) (*dto.Article, error) {
-	return &dto.Article{Slug: slug}, nil
+	article, err := r.articleRepository.FindArticleBySlug(ctx, slug)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.Article{
+		Slug: article.Slug,
+	}, nil
 }
 
 func (r *Resolver) Query() exec.QueryResolver { return &queryResolver{r} }

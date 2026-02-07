@@ -13,9 +13,11 @@ import (
 	"testing"
 
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/graph/test"
 	"github.com/goccy/go-yaml"
 	"github.com/google/go-cmp/cmp"
+	"go.uber.org/mock/gomock"
 )
 
 func TestHandler(t *testing.T) {
@@ -30,7 +32,10 @@ func TestHandler(t *testing.T) {
 		t.Run(tc.caseName, func(t *testing.T) {
 			t.Parallel()
 
-			h := test.NewHandler()
+			h := test.NewHandler(gomock.NewController(t))
+			if stub, ok := stubs[tc.caseName]; ok {
+				stub(h)
+			}
 			srv := httptest.NewServer(h)
 			t.Cleanup(srv.Close)
 
@@ -124,4 +129,16 @@ func transformResponse(resp *http.Response) *responseExpectation {
 		Status: resp.StatusCode,
 		Body:   m,
 	}
+}
+
+var stubs = map[string]func(h *test.Handler){
+	"query article": func(h *test.Handler) {
+		h.ArticleRepository.EXPECT().
+			FindArticleBySlug(gomock.Any(), "abc").
+			Return(&domain.Article{
+				ArticleID: "article-1",
+				Slug:      "abc",
+			}, nil).
+			Times(1)
+	},
 }

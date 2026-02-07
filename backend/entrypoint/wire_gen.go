@@ -11,6 +11,8 @@ import (
 	"github.com/aereal/nikki/backend/env"
 	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/graph/resolvers"
+	"github.com/aereal/nikki/backend/infra/db"
+	"github.com/aereal/nikki/backend/infra/db/exec"
 	"github.com/aereal/nikki/backend/log"
 	"github.com/aereal/nikki/backend/o11y"
 	"github.com/aereal/nikki/backend/o11y/service"
@@ -46,7 +48,17 @@ func NewDevEntrypoint(contextContext context.Context) (*Entrypoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	resolver := resolvers.ProvideResolver()
+	endpoint, err := env.ProvideDBEndpoint(variables)
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, err := db.ProvideDB(tracerProvider, endpoint)
+	if err != nil {
+		return nil, err
+	}
+	runner := exec.ProvideRunner(tracerProvider, sqlDB)
+	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
+	resolver := resolvers.ProvideResolver(articleRepository)
 	handler := graph.ProviveHandler(tracerProvider, resolver)
 	server := web.ProvideServer(tracerProvider, port, handler)
 	entrypoint := provideEntrypoint(contextContext, globalInstrumentationToken, server, tracerProvider)
@@ -88,7 +100,17 @@ func NewProductionEntrypoint(contextContext context.Context) (*Entrypoint, error
 	if err != nil {
 		return nil, err
 	}
-	resolver := resolvers.ProvideResolver()
+	endpoint, err := env.ProvideDBEndpoint(variables)
+	if err != nil {
+		return nil, err
+	}
+	sqlDB, err := db.ProvideDB(tracerProvider, endpoint)
+	if err != nil {
+		return nil, err
+	}
+	runner := exec.ProvideRunner(tracerProvider, sqlDB)
+	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
+	resolver := resolvers.ProvideResolver(articleRepository)
 	handler := graph.ProviveHandler(tracerProvider, resolver)
 	server := web.ProvideServer(tracerProvider, port, handler)
 	entrypoint := provideEntrypoint(contextContext, globalInstrumentationToken, server, tracerProvider)
