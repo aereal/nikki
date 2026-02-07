@@ -2,11 +2,14 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/infra/db/exec"
 	"github.com/aereal/nikki/backend/infra/db/queries"
 	"github.com/aereal/nikki/backend/o11y"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -23,6 +26,23 @@ type ArticleRepository struct {
 }
 
 var _ domain.ArticleRepository = (*ArticleRepository)(nil)
+
+func (r *ArticleRepository) FindArticleBySlug(ctx context.Context, slug string) (_ *domain.Article, err error) {
+	ctx, span := r.tracer.Start(ctx, "FindArticleBySlug", trace.WithAttributes(attribute.String("slug", slug)))
+	defer func() { o11y.FinishSpan(span, err) }()
+
+	article, err := queries.New(r.execCtx).FindArticleBySlug(ctx, slug)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, domain.ArticleBySlugNotFound(slug)
+		}
+		return nil, err
+	}
+	return &domain.Article{
+		ArticleID: article.ArticleID,
+		Slug:      article.Slug,
+	}, nil
+}
 
 func (r *ArticleRepository) ImportArticles(ctx context.Context, aggregate *domain.ImportArticlesAggregate) (err error) {
 	ctx, span := r.tracer.Start(ctx, "ImportArticles")

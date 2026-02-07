@@ -41,3 +41,11 @@ insert into
   article_category_mappings (article_id, category_id)
 values
   (?, ?);
+
+-- name: FindArticleBySlug :one
+select
+  *
+from
+  articles
+where
+  slug = ?;

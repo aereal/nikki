@@ -41,6 +41,45 @@ func (m *MockArticleRepository) EXPECT() *MockArticleRepositoryMockRecorder {
 	return m.recorder
 }
 
+// FindArticleBySlug mocks base method.
+func (m *MockArticleRepository) FindArticleBySlug(ctx context.Context, slug string) (*domain.Article, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindArticleBySlug", ctx, slug)
+	ret0, _ := ret[0].(*domain.Article)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindArticleBySlug indicates an expected call of FindArticleBySlug.
+func (mr *MockArticleRepositoryMockRecorder) FindArticleBySlug(ctx, slug any) *MockArticleRepositoryFindArticleBySlugCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindArticleBySlug", reflect.TypeOf((*MockArticleRepository)(nil).FindArticleBySlug), ctx, slug)
+	return &MockArticleRepositoryFindArticleBySlugCall{Call: call}
+}
+
+// MockArticleRepositoryFindArticleBySlugCall wrap *gomock.Call
+type MockArticleRepositoryFindArticleBySlugCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockArticleRepositoryFindArticleBySlugCall) Return(arg0 *domain.Article, arg1 error) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockArticleRepositoryFindArticleBySlugCall) Do(f func(context.Context, string) (*domain.Article, error)) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockArticleRepositoryFindArticleBySlugCall) DoAndReturn(f func(context.Context, string) (*domain.Article, error)) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ImportArticles mocks base method.
 func (m *MockArticleRepository) ImportArticles(ctx context.Context, aggregate *domain.ImportArticlesAggregate) error {
 	m.ctrl.T.Helper()

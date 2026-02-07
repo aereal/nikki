@@ -80,6 +80,22 @@ func (q *Queries) CreateArticles(ctx context.Context, arg CreateArticlesParams) 
 	return err
 }
 
+const findArticleBySlug = `-- name: FindArticleBySlug :one
+select
+  article_id, slug
+from
+  articles
+where
+  slug = ?
+`
+
+func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*Article, error) {
+	row := q.db.QueryRowContext(ctx, findArticleBySlug, slug)
+	var i Article
+	err := row.Scan(&i.ArticleID, &i.Slug)
+	return &i, err
+}
+
 const findCategoriesByNames = `-- name: FindCategoriesByNames :many
 select
   category_id, name

@@ -1,11 +1,13 @@
 package db_test
 
 import (
+	"errors"
 	"testing"
 	"time"
 
 	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/infra/db/test"
+	"github.com/google/go-cmp/cmp"
 )
 
 func TestArticleRepository(t *testing.T) {
@@ -54,5 +56,21 @@ func TestArticleRepository(t *testing.T) {
 	}
 	if err := articleRepo.ImportArticles(t.Context(), aggregate); err != nil {
 		t.Fatal(err)
+	}
+
+	gotArticle, err := articleRepo.FindArticleBySlug(t.Context(), aggregate.Articles[0].Slug)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantArticle := &domain.Article{
+		ArticleID: articleID1,
+		Slug:      "article_1",
+	}
+	if diff := cmp.Diff(wantArticle, gotArticle); diff != "" {
+		t.Errorf("article (-want, +got):\n%s", diff)
+	}
+
+	if _, gotErr := articleRepo.FindArticleBySlug(t.Context(), "not_found"); !errors.Is(gotErr, domain.ArticleBySlugNotFound("not_found")) {
+		t.Errorf("unexpected error: (%T) %s", gotErr, gotErr)
 	}
 }
