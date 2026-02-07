@@ -19,6 +19,7 @@ sql:
         output_db_file_name: "db_gen.go"
         output_models_file_name: "models_gen.go"
         output_files_suffix: _gen
+        emit_result_struct_pointers: true
         overrides:
           - column: categories.category_id
             go_type:

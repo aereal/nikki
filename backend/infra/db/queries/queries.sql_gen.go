@@ -89,7 +89,7 @@ where
   name in (/*SLICE:names*/?)
 `
 
-func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]Category, error) {
+func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]*Category, error) {
 	query := findCategoriesByNames
 	var queryParams []interface{}
 	if len(names) > 0 {
@@ -105,13 +105,13 @@ func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Category
+	var items []*Category
 	for rows.Next() {
 		var i Category
 		if err := rows.Scan(&i.CategoryID, &i.Name); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err
