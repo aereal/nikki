@@ -4,7 +4,6 @@ package main
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/env"
@@ -44,7 +43,7 @@ func build(_ context.Context) (*app, error) {
 		provideApp,
 		wire.Bind(new(domain.ArticleRepository), new(*db.ArticleRepository)),
 		wire.Bind(new(domain.CategoryRepository), new(*db.CategoryRepository)),
-		wire.Bind(new(exec.Context), new(*sql.DB)),
+		wire.Bind(new(exec.Context), new(*exec.Runner)),
 		wire.Bind(new(trace.TracerProvider), new(*sdktrace.TracerProvider)),
 		wire.Bind(new(unitofwork.Runner), new(*exec.Runner)),
 		wire.Bind(new(usecases.ImportMTExport), new(*interactions.ImportMTExport)),

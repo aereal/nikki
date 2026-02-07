@@ -47,12 +47,12 @@ func build(contextContext context.Context) (*app, error) {
 	if err != nil {
 		return nil, err
 	}
-	articleRepository := db.ProvideArticleRepository(tracerProvider, sqlDB)
+	runner := exec.ProvideRunner(sqlDB)
+	articleRepository := db.ProvideArticleRepository(tracerProvider, runner)
 	idGenerator := db.ProvideCategoryIDGenerator()
-	categoryRepository := db.ProvideCategoryRepository(tracerProvider, sqlDB, idGenerator)
+	categoryRepository := db.ProvideCategoryRepository(tracerProvider, runner, idGenerator)
 	dbIDGenerator := db.ProvideArticleIDGenerator()
 	idGenerator2 := db.ProvideArticleRevisionIDGenerator()
-	runner := exec.ProvideRunner(sqlDB)
 	mtExportFileName, err := env.ProvideMTExportFileName(variables)
 	if err != nil {
 		return nil, err
