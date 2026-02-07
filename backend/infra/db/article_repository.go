@@ -28,6 +28,10 @@ func (r *ArticleRepository) ImportArticles(ctx context.Context, aggregate *domai
 	ctx, span := r.tracer.Start(ctx, "ImportArticles")
 	defer func() { o11y.FinishSpan(span, err) }()
 
+	if len(aggregate.Articles) == 0 {
+		return ErrNoValuesToInsert
+	}
+
 	if err := r.createArticles(ctx, aggregate.Articles); err != nil {
 		return err
 	}
@@ -83,6 +87,9 @@ func (r *ArticleRepository) createArticleCategoryMappings(ctx context.Context, a
 				CategoryID: c.CategoryID,
 			})
 		}
+	}
+	if len(params) == 0 {
+		return nil
 	}
 	return queries.New(r.execCtx).BulkMapArticleCategory(ctx, params)
 }
