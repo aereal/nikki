@@ -7,7 +7,9 @@ import (
 
 	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/infra/db/test"
+	"github.com/aereal/optional"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
 func TestArticleRepository(t *testing.T) {
@@ -33,6 +35,7 @@ func TestArticleRepository(t *testing.T) {
 	articleID1 := articleRepo.ArticleIDGenerator.GenerateID()
 	articleID2 := articleRepo.ArticleIDGenerator.GenerateID()
 	authoredAt1 := time.Now()
+	authoredAt2 := authoredAt1.Add(time.Second * 5 * -1)
 	aggregate := &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
@@ -50,7 +53,7 @@ func TestArticleRepository(t *testing.T) {
 				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
 				Title:             "title 2",
 				Body:              "<p>body 2</p>",
-				AuthoredAt:        time.Now(),
+				AuthoredAt:        authoredAt2,
 				Categories:        categories[1:],
 			},
 		},
@@ -77,4 +80,48 @@ func TestArticleRepository(t *testing.T) {
 	if _, gotErr := articleRepo.FindArticleBySlug(t.Context(), "not_found"); !errors.Is(gotErr, domain.ArticleBySlugNotFound("not_found")) {
 		t.Errorf("unexpected error: (%T) %s", gotErr, gotErr)
 	}
+
+	t.Run("first=1 order=desc cursor=none", func(t *testing.T) { //nolint:paralleltest
+		got, cursor, err := articleRepo.FindArticles(t.Context(), 1, domain.OrderDirectionDesc, optional.None[time.Time]())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(optional.Some(authoredAt2.Truncate(time.Millisecond)), cursor, cmp.Transformer("Optional", func(o optional.Option[time.Time]) *time.Time { return o.Ptr() }), cmpopts.EquateComparable(time.Time{})); diff != "" {
+			t.Errorf("cursor (-want, +got):\n%s", diff)
+		}
+		want := []*domain.Article{
+			{
+				ArticleID:   articleID1,
+				Slug:        "article_1",
+				Title:       "title 1",
+				Body:        "<p>body 1</p>",
+				PublishedAt: authoredAt1.Truncate(time.Millisecond),
+			},
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("articles (-want, +got):\n%s", diff)
+		}
+	})
+
+	t.Run("first=1 order=desc cursor=1", func(t *testing.T) { //nolint:paralleltest
+		got, cursor, err := articleRepo.FindArticles(t.Context(), 1, domain.OrderDirectionDesc, optional.Some(authoredAt2))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if diff := cmp.Diff(optional.None[time.Time](), cursor, cmp.Transformer("Optional", func(o optional.Option[time.Time]) *time.Time { return o.Ptr() }), cmpopts.EquateComparable(time.Time{})); diff != "" {
+			t.Errorf("cursor (-want, +got):\n%s", diff)
+		}
+		want := []*domain.Article{
+			{
+				ArticleID:   articleID1,
+				Slug:        "article_1",
+				Title:       "title 1",
+				Body:        "<p>body 1</p>",
+				PublishedAt: authoredAt1.Truncate(time.Millisecond),
+			},
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("articles (-want, +got):\n%s", diff)
+		}
+	})
 }
