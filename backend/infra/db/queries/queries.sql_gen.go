@@ -8,9 +8,9 @@ package queries
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/dto"
 )
 
 const createArticlePublications = `-- name: CreateArticlePublications :exec
@@ -23,7 +23,7 @@ values
 type CreateArticlePublicationsParams struct {
 	ArticleID         domain.ArticleID
 	ArticleRevisionID domain.ArticleRevisionID
-	PublishedAt       time.Time
+	PublishedAt       dto.DateTime
 }
 
 func (q *Queries) CreateArticlePublications(ctx context.Context, arg CreateArticlePublicationsParams) error {
@@ -49,7 +49,7 @@ type CreateArticleRevisionsParams struct {
 	ArticleID         domain.ArticleID
 	Title             string
 	Body              string
-	AuthoredAt        time.Time
+	AuthoredAt        dto.DateTime
 }
 
 func (q *Queries) CreateArticleRevisions(ctx context.Context, arg CreateArticleRevisionsParams) error {

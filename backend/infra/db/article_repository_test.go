@@ -32,6 +32,7 @@ func TestArticleRepository(t *testing.T) {
 	}
 	articleID1 := articleRepo.ArticleIDGenerator.GenerateID()
 	articleID2 := articleRepo.ArticleIDGenerator.GenerateID()
+	authoredAt1 := time.Now()
 	aggregate := &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
@@ -40,7 +41,7 @@ func TestArticleRepository(t *testing.T) {
 				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
 				Title:             "title 1",
 				Body:              "<p>body 1</p>",
-				AuthoredAt:        time.Now(),
+				AuthoredAt:        authoredAt1,
 				Categories:        categories,
 			},
 			{

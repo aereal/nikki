@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/dto"
 	"github.com/aereal/nikki/backend/infra/db/exec"
 	"github.com/aereal/nikki/backend/infra/db/queries"
 	"github.com/aereal/nikki/backend/o11y"
@@ -85,7 +86,7 @@ func (r *ArticleRepository) createRevisions(ctx context.Context, articles []*dom
 		params[i].ArticleRevisionID = a.ArticleRevisionID
 		params[i].Title = a.Title
 		params[i].Body = a.Body
-		params[i].AuthoredAt = a.AuthoredAt
+		params[i].AuthoredAt = dto.DateTime(a.AuthoredAt)
 	}
 	return queries.New(r.execCtx).BulkCreateArticleRevisions(ctx, params)
 }
@@ -95,7 +96,7 @@ func (r *ArticleRepository) createArticlePublications(ctx context.Context, artic
 	for i, a := range articles {
 		params[i].ArticleID = a.ArticleID
 		params[i].ArticleRevisionID = a.ArticleRevisionID
-		params[i].PublishedAt = a.AuthoredAt
+		params[i].PublishedAt = dto.DateTime(a.AuthoredAt)
 	}
 	return queries.New(r.execCtx).BulkCreateArticlePublications(ctx, params)
 }

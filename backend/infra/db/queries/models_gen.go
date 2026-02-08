@@ -5,9 +5,8 @@
 package queries
 
 import (
-	"time"
-
 	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/dto"
 )
 
 type Article struct {
@@ -23,7 +22,7 @@ type ArticleCategoryMapping struct {
 type ArticlePublication struct {
 	ArticleID         domain.ArticleID
 	ArticleRevisionID domain.ArticleRevisionID
-	PublishedAt       time.Time
+	PublishedAt       dto.DateTime
 }
 
 type ArticleRevision struct {
@@ -31,7 +30,7 @@ type ArticleRevision struct {
 	ArticleID         domain.ArticleID
 	Title             string
 	Body              string
-	AuthoredAt        time.Time
+	AuthoredAt        dto.DateTime
 }
 
 type Category struct {

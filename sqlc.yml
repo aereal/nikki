@@ -39,7 +39,8 @@ sql:
               type: ArticleRevisionID
           - column: article_revisions.authored_at
             go_type:
-              type: "time.Time"
+              import: "github.com/aereal/nikki/backend/infra/db/dto"
+              type: "DateTime"
           - column: article_publications.article_id
             go_type:
               import: "github.com/aereal/nikki/backend/domain"
@@ -50,7 +51,8 @@ sql:
               type: ArticleRevisionID
           - column: article_publications.published_at
             go_type:
-              type: "time.Time"
+              import: "github.com/aereal/nikki/backend/infra/db/dto"
+              type: "DateTime"
           - column: article_category_mappings.article_id
             go_type:
               import: "github.com/aereal/nikki/backend/domain"
