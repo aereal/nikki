@@ -41,17 +41,12 @@ func TestConvertMTEntry(t *testing.T) {
 				"c": {CategoryID: "3", Name: "c"},
 			},
 			wantValue: &domain.ArticleToImport{
-				Article: &domain.Article{
-					ArticleID: "100",
-					Slug:      "basename",
-				},
-				ArticleRevision: &domain.ArticleRevision{
-					ArticleID:         "100",
-					ArticleRevisionID: "1",
-					Title:             "title",
-					Body:              "<p>body</p><p>extended</p>",
-					AuthoredAt:        date,
-				},
+				ArticleID:         "100",
+				Slug:              "basename",
+				ArticleRevisionID: "1",
+				Title:             "title",
+				Body:              "<p>body</p><p>extended</p>",
+				AuthoredAt:        date,
 				Categories: []*domain.Category{
 					{CategoryID: "1", Name: "a"},
 					{CategoryID: "2", Name: "b"},

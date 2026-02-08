@@ -85,34 +85,24 @@ var (
 	wantOKAggregate = &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
-				Article: &domain.Article{
-					ArticleID: "article-1",
-					Slug:      "filename",
-				},
-				ArticleRevision: &domain.ArticleRevision{
-					ArticleRevisionID: "revision-1",
-					ArticleID:         "article-1",
-					Title:             "A dummy title",
-					Body:              "これは本文です。\nここに追記の本文が表示されます。\n",
-					AuthoredAt:        wantAuthoredTime,
-				},
+				ArticleID:         "article-1",
+				Slug:              "filename",
+				ArticleRevisionID: "revision-1",
+				Title:             "A dummy title",
+				Body:              "これは本文です。\nここに追記の本文が表示されます。\n",
+				AuthoredAt:        wantAuthoredTime,
 				Categories: []*domain.Category{
 					{CategoryID: "cat-1", Name: "News"},
 					{CategoryID: "cat-2", Name: "Product"},
 				},
 			},
 			{
-				Article: &domain.Article{
-					ArticleID: "article-2",
-					Slug:      "filename",
-				},
-				ArticleRevision: &domain.ArticleRevision{
-					ArticleRevisionID: "revision-2",
-					ArticleID:         "article-2",
-					Title:             "2件目の記事",
-					Body:              "これは2番目の記事の本文です。 これは\n複数行から成ります。\n",
-					AuthoredAt:        wantAuthoredTime,
-				},
+				ArticleID:         "article-2",
+				Slug:              "filename",
+				ArticleRevisionID: "revision-2",
+				Title:             "2件目の記事",
+				Body:              "これは2番目の記事の本文です。 これは\n複数行から成ります。\n",
+				AuthoredAt:        wantAuthoredTime,
 				Categories: []*domain.Category{
 					{CategoryID: "cat-1", Name: "News"},
 					{CategoryID: "cat-2", Name: "Product"},

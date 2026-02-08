@@ -50,7 +50,7 @@ func (r *ArticleRepository) ImportArticles(ctx context.Context, aggregate *domai
 func (r *ArticleRepository) createArticles(ctx context.Context, articles []*domain.ArticleToImport) error {
 	params := make(queries.BulkCreateArticlesParams, len(articles))
 	for i, a := range articles {
-		params[i].ArticleID = a.Article.ArticleID
+		params[i].ArticleID = a.ArticleID
 		params[i].Slug = a.Slug
 	}
 	return queries.New(r.execCtx).BulkCreateArticles(ctx, params)
@@ -59,7 +59,7 @@ func (r *ArticleRepository) createArticles(ctx context.Context, articles []*doma
 func (r *ArticleRepository) createRevisions(ctx context.Context, articles []*domain.ArticleToImport) error {
 	params := make(queries.BulkCreateArticleRevisionsParams, len(articles))
 	for i, a := range articles {
-		params[i].ArticleID = a.ArticleRevision.ArticleID
+		params[i].ArticleID = a.ArticleID
 		params[i].ArticleRevisionID = a.ArticleRevisionID
 		params[i].Title = a.Title
 		params[i].Body = a.Body
@@ -71,7 +71,7 @@ func (r *ArticleRepository) createRevisions(ctx context.Context, articles []*dom
 func (r *ArticleRepository) createArticlePublications(ctx context.Context, articles []*domain.ArticleToImport) error {
 	params := make(queries.BulkCreateArticlePublicationsParams, len(articles))
 	for i, a := range articles {
-		params[i].ArticleID = a.Article.ArticleID
+		params[i].ArticleID = a.ArticleID
 		params[i].ArticleRevisionID = a.ArticleRevisionID
 		params[i].PublishedAt = a.AuthoredAt
 	}
@@ -83,7 +83,7 @@ func (r *ArticleRepository) createArticleCategoryMappings(ctx context.Context, a
 	for _, a := range articles {
 		for _, c := range a.Categories {
 			params = append(params, queries.MapArticleCategoryParams{
-				ArticleID:  a.Article.ArticleID,
+				ArticleID:  a.ArticleID,
 				CategoryID: c.CategoryID,
 			})
 		}

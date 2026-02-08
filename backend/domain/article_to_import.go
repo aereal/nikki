@@ -1,8 +1,13 @@
 package domain
 
-type ArticleToImport struct {
-	*Article
-	*ArticleRevision
+import "time"
 
-	Categories []*Category
+type ArticleToImport struct {
+	ArticleID         ArticleID
+	Slug              string
+	ArticleRevisionID ArticleRevisionID
+	Title             string
+	Body              string
+	AuthoredAt        time.Time
+	Categories        []*Category
 }
