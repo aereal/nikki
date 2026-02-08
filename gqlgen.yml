@@ -15,7 +15,8 @@ model:
   package: dto
 resolver:
   package: resolvers
-  layout: single-file
-  filename: ./backend/graph/resolvers/resolver.go
+  layout: follow-schema
+  dir: "./backend/graph/resolvers/"
+  filename_template: "{name}.res.go"
   omit_template_comment: true
 models: {}
