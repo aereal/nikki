@@ -12,18 +12,14 @@ func ConvertMTEntry(articleID domain.ArticleID, articleRevisionID domain.Article
 		return nil, asConvertMTEntryError(articleID, articleRevisionID, err)
 	}
 
-	article := &domain.Article{
-		ArticleID: articleID,
-		Slug:      entry.Basename,
-	}
-	revision := &domain.ArticleRevision{
+	articleToImport := &domain.ArticleToImport{
 		ArticleID:         articleID,
+		Slug:              entry.Basename,
 		ArticleRevisionID: articleRevisionID,
 		Title:             entry.Title,
 		Body:              entry.Body + entry.ExtendedBody,
 		AuthoredAt:        entry.Date,
 	}
-	articleToImport := &domain.ArticleToImport{Article: article, ArticleRevision: revision}
 	categoryNames := CategoryNamesOfMTEntry(entry)
 	errs := make([]error, 0, categoryNames.Len())
 	for _, name := range slices.Sorted(categoryNames.Values()) {

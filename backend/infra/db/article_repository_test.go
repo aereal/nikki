@@ -33,32 +33,22 @@ func TestArticleRepository(t *testing.T) {
 	aggregate := &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
-				Article: &domain.Article{
-					ArticleID: articleID1,
-					Slug:      "article_1",
-				},
-				ArticleRevision: &domain.ArticleRevision{
-					ArticleID:         articleID1,
-					ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
-					Title:             "title",
-					Body:              "<p>body</p>",
-					AuthoredAt:        time.Now(),
-				},
-				Categories: categories,
+				ArticleID:         articleID1,
+				Slug:              "article_1",
+				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
+				Title:             "title",
+				Body:              "<p>body</p>",
+				AuthoredAt:        time.Now(),
+				Categories:        categories,
 			},
 			{
-				Article: &domain.Article{
-					ArticleID: articleID2,
-					Slug:      "article_2",
-				},
-				ArticleRevision: &domain.ArticleRevision{
-					ArticleID:         articleID2,
-					ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
-					Title:             "title",
-					Body:              "<p>body</p>",
-					AuthoredAt:        time.Now(),
-				},
-				Categories: categories[1:],
+				ArticleID:         articleID2,
+				Slug:              "article_2",
+				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
+				Title:             "title",
+				Body:              "<p>body</p>",
+				AuthoredAt:        time.Now(),
+				Categories:        categories[1:],
 			},
 		},
 	}
