@@ -85,19 +85,22 @@ select
   articles.article_id,
   articles.slug,
   article_revisions.body,
-  article_revisions.title
+  article_revisions.title,
+  article_publications.published_at
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
 where
   articles.slug = ?
 `
 
 type FindArticleBySlugRow struct {
-	ArticleID domain.ArticleID
-	Slug      string
-	Body      string
-	Title     string
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
 }
 
 func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*FindArticleBySlugRow, error) {
@@ -108,6 +111,7 @@ func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*FindArti
 		&i.Slug,
 		&i.Body,
 		&i.Title,
+		&i.PublishedAt,
 	)
 	return &i, err
 }

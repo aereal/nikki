@@ -64,10 +64,11 @@ func TestArticleRepository(t *testing.T) {
 		t.Fatal(err)
 	}
 	wantArticle := &domain.Article{
-		ArticleID: articleID1,
-		Slug:      "article_1",
-		Title:     "title 1",
-		Body:      "<p>body 1</p>",
+		ArticleID:   articleID1,
+		Slug:        "article_1",
+		Title:       "title 1",
+		Body:        "<p>body 1</p>",
+		PublishedAt: authoredAt1.Truncate(time.Millisecond),
 	}
 	if diff := cmp.Diff(wantArticle, gotArticle); diff != "" {
 		t.Errorf("article (-want, +got):\n%s", diff)

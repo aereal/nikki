@@ -47,9 +47,11 @@ select
   articles.article_id,
   articles.slug,
   article_revisions.body,
-  article_revisions.title
+  article_revisions.title,
+  article_publications.published_at
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
 where
   articles.slug = ?;

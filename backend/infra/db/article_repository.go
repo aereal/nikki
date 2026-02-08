@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
 
 	"github.com/aereal/nikki/backend/domain"
 	"github.com/aereal/nikki/backend/infra/db/dto"
@@ -40,10 +41,11 @@ func (r *ArticleRepository) FindArticleBySlug(ctx context.Context, slug string) 
 		return nil, err
 	}
 	return &domain.Article{
-		ArticleID: article.ArticleID,
-		Slug:      article.Slug,
-		Title:     article.Title,
-		Body:      article.Body,
+		ArticleID:   article.ArticleID,
+		Slug:        article.Slug,
+		Title:       article.Title,
+		Body:        article.Body,
+		PublishedAt: time.Time(article.PublishedAt),
 	}, nil
 }
 
