@@ -10,6 +10,7 @@ cases:
           article(slug: $slug) {
             slug
             title
+            body
           }
         }
     response:
@@ -17,3 +18,4 @@ cases:
         article:
           slug: "abc"
           title: "title"
+          body: "<p>body</p>"

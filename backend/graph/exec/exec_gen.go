@@ -46,6 +46,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Article struct {
+		Body  func(childComplexity int) int
 		Slug  func(childComplexity int) int
 		Title func(childComplexity int) int
 	}
@@ -78,6 +79,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Article.body":
+		if e.complexity.Article.Body == nil {
+			break
+		}
+
+		return e.complexity.Article.Body(childComplexity), true
 	case "Article.slug":
 		if e.complexity.Article.Slug == nil {
 			break
@@ -199,6 +206,7 @@ var sources = []*ast.Source{
 type Article {
   slug: String!
   title: String!
+  body: String!
 }
 `, BuiltIn: false},
 }
@@ -340,6 +348,35 @@ func (ec *executionContext) fieldContext_Article_title(_ context.Context, field 
 	return fc, nil
 }
 
+func (ec *executionContext) _Article_body(ctx context.Context, field graphql.CollectedField, obj *dto.Article) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Article_body,
+		func(ctx context.Context) (any, error) {
+			return obj.Body, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Article_body(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Article",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_article(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -369,6 +406,8 @@ func (ec *executionContext) fieldContext_Query_article(ctx context.Context, fiel
 				return ec.fieldContext_Article_slug(ctx, field)
 			case "title":
 				return ec.fieldContext_Article_title(ctx, field)
+			case "body":
+				return ec.fieldContext_Article_body(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Article", field.Name)
 		},
@@ -1967,6 +2006,11 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 			}
 		case "title":
 			out.Values[i] = ec._Article_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "body":
+			out.Values[i] = ec._Article_body(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

@@ -15,6 +15,7 @@ func (r *queryResolver) Article(ctx context.Context, slug string) (*dto.Article,
 	return &dto.Article{
 		Slug:  article.Slug,
 		Title: article.Title,
+		Body:  article.Body,
 	}, nil
 }
 

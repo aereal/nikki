@@ -46,6 +46,7 @@ values
 select
   articles.article_id,
   articles.slug,
+  article_revisions.body,
   article_revisions.title
 from
   articles

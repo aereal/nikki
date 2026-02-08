@@ -21,6 +21,7 @@ export type Scalars = {
 }
 
 export type Article = {
+  readonly body: Scalars['String']['output']
   readonly slug: Scalars['String']['output']
   readonly title: Scalars['String']['output']
 }

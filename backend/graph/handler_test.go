@@ -139,6 +139,7 @@ var stubs = map[string]func(h *test.Handler){
 				ArticleID: "article-1",
 				Slug:      "abc",
 				Title:     "title",
+				Body:      "<p>body</p>",
 			}, nil).
 			Times(1)
 	},

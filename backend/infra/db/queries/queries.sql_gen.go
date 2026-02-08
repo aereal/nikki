@@ -84,6 +84,7 @@ const findArticleBySlug = `-- name: FindArticleBySlug :one
 select
   articles.article_id,
   articles.slug,
+  article_revisions.body,
   article_revisions.title
 from
   articles
@@ -95,13 +96,19 @@ where
 type FindArticleBySlugRow struct {
 	ArticleID domain.ArticleID
 	Slug      string
+	Body      string
 	Title     string
 }
 
 func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*FindArticleBySlugRow, error) {
 	row := q.db.QueryRowContext(ctx, findArticleBySlug, slug)
 	var i FindArticleBySlugRow
-	err := row.Scan(&i.ArticleID, &i.Slug, &i.Title)
+	err := row.Scan(
+		&i.ArticleID,
+		&i.Slug,
+		&i.Body,
+		&i.Title,
+	)
 	return &i, err
 }
 
