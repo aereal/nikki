@@ -3,5 +3,6 @@
 package dto
 
 type Article struct {
-	Slug string `json:"slug"`
+	Slug  string `json:"slug"`
+	Title string `json:"title"`
 }

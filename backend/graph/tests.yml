@@ -9,9 +9,11 @@ cases:
         query get($slug: String!) {
           article(slug: $slug) {
             slug
+            title
           }
         }
     response:
       data:
         article:
           slug: "abc"
+          title: "title"

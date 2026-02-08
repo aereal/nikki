@@ -22,6 +22,7 @@ export type Scalars = {
 
 export type Article = {
   readonly slug: Scalars['String']['output']
+  readonly title: Scalars['String']['output']
 }
 
 export type Query = {
