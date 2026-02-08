@@ -40,7 +40,14 @@ export type GetPermalinkQueryVariables = Exact<{
   slug: Scalars['String']['input']
 }>
 
-export type GetPermalinkQuery = { readonly article?: { readonly slug: string } | null }
+export type GetPermalinkQuery = {
+  readonly article?: {
+    readonly slug: string
+    readonly title: string
+    readonly body: string
+    readonly publishedAt: Date
+  } | null
+}
 
 export const GetPermalinkDocument = {
   kind: 'Document',
@@ -74,7 +81,12 @@ export const GetPermalinkDocument = {
             ],
             selectionSet: {
               kind: 'SelectionSet',
-              selections: [{ kind: 'Field', name: { kind: 'Name', value: 'slug' } }],
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'body' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'publishedAt' } },
+              ],
             },
           },
         ],

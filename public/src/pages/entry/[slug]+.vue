@@ -7,6 +7,9 @@ const query = graphql(`
   query GetPermalink($slug: String!) {
     article(slug: $slug) {
       slug
+      title
+      body
+      publishedAt
     }
   }
 `)
@@ -31,7 +34,13 @@ export default {
 <template>
   <div v-if="fetching">Loading...</div>
   <div v-else-if="error">! error: {{ error.message }}</div>
-  <div v-else-if="data && data.article">
-    <h1>entry: {{ data.article.slug }}</h1>
-  </div>
+  <article v-else-if="data && data.article">
+    <header>
+      <h1>{{ data.article.title }}</h1>
+      <p>
+        <time>{{ data.article.publishedAt }}</time>
+      </p>
+    </header>
+    <main v-html="data.article.body" />
+  </article>
 </template>
