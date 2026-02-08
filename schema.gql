@@ -1,3 +1,5 @@
+scalar DateTime
+
 type Query {
   article(slug: String!): Article
 }
@@ -6,4 +8,5 @@ type Article {
   slug: String!
   title: String!
   body: String!
+  publishedAt: DateTime!
 }

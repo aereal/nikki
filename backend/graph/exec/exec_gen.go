@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -46,9 +47,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Article struct {
-		Body  func(childComplexity int) int
-		Slug  func(childComplexity int) int
-		Title func(childComplexity int) int
+		Body        func(childComplexity int) int
+		PublishedAt func(childComplexity int) int
+		Slug        func(childComplexity int) int
+		Title       func(childComplexity int) int
 	}
 
 	Query struct {
@@ -85,6 +87,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Article.Body(childComplexity), true
+	case "Article.publishedAt":
+		if e.complexity.Article.PublishedAt == nil {
+			break
+		}
+
+		return e.complexity.Article.PublishedAt(childComplexity), true
 	case "Article.slug":
 		if e.complexity.Article.Slug == nil {
 			break
@@ -199,7 +207,9 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../../schema.gql", Input: `type Query {
+	{Name: "../../../schema.gql", Input: `scalar DateTime
+
+type Query {
   article(slug: String!): Article
 }
 
@@ -207,6 +217,7 @@ type Article {
   slug: String!
   title: String!
   body: String!
+  publishedAt: DateTime!
 }
 `, BuiltIn: false},
 }
@@ -377,6 +388,35 @@ func (ec *executionContext) fieldContext_Article_body(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Article_publishedAt(ctx context.Context, field graphql.CollectedField, obj *dto.Article) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Article_publishedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.PublishedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Article_publishedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Article",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_article(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -408,6 +448,8 @@ func (ec *executionContext) fieldContext_Query_article(ctx context.Context, fiel
 				return ec.fieldContext_Article_title(ctx, field)
 			case "body":
 				return ec.fieldContext_Article_body(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Article_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Article", field.Name)
 		},
@@ -2014,6 +2056,11 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "publishedAt":
+			out.Values[i] = ec._Article_publishedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2455,6 +2502,22 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := dto.UnmarshalDateTime(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	_ = sel
+	res := dto.MarshalDateTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {

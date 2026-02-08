@@ -13,6 +13,12 @@ const config: CodegenConfig = {
     useTypeImports: true,
     immutableTypes: true,
     skipTypename: true,
+    scalars: {
+      DateTime: {
+        input: 'string',
+        output: 'Date',
+      },
+    },
   },
   generates: {
     'src/graphql/': {

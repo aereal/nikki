@@ -19,4 +19,7 @@ resolver:
   dir: "./backend/graph/resolvers/"
   filename_template: "{name}.res.go"
   omit_template_comment: true
-models: {}
+models:
+  DateTime:
+    model:
+      - github.com/aereal/nikki/backend/graph/dto.DateTime

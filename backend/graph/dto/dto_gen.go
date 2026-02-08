@@ -2,8 +2,13 @@
 
 package dto
 
+import (
+	"time"
+)
+
 type Article struct {
-	Slug  string `json:"slug"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
+	Slug        string    `json:"slug"`
+	Title       string    `json:"title"`
+	Body        string    `json:"body"`
+	PublishedAt time.Time `json:"publishedAt"`
 }
