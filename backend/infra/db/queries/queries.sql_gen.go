@@ -82,17 +82,26 @@ func (q *Queries) CreateArticles(ctx context.Context, arg CreateArticlesParams) 
 
 const findArticleBySlug = `-- name: FindArticleBySlug :one
 select
-  article_id, slug
+  articles.article_id,
+  articles.slug,
+  article_revisions.title
 from
   articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
 where
-  slug = ?
+  articles.slug = ?
 `
 
-func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*Article, error) {
+type FindArticleBySlugRow struct {
+	ArticleID domain.ArticleID
+	Slug      string
+	Title     string
+}
+
+func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*FindArticleBySlugRow, error) {
 	row := q.db.QueryRowContext(ctx, findArticleBySlug, slug)
-	var i Article
-	err := row.Scan(&i.ArticleID, &i.Slug)
+	var i FindArticleBySlugRow
+	err := row.Scan(&i.ArticleID, &i.Slug, &i.Title)
 	return &i, err
 }
 

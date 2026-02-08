@@ -44,8 +44,11 @@ values
 
 -- name: FindArticleBySlug :one
 select
-  *
+  articles.article_id,
+  articles.slug,
+  article_revisions.title
 from
   articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
 where
-  slug = ?;
+  articles.slug = ?;

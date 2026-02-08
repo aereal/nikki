@@ -38,7 +38,7 @@ func TestArticleRepository(t *testing.T) {
 				ArticleID:         articleID1,
 				Slug:              "article_1",
 				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
-				Title:             "title",
+				Title:             "title 1",
 				Body:              "<p>body</p>",
 				AuthoredAt:        time.Now(),
 				Categories:        categories,
@@ -47,7 +47,7 @@ func TestArticleRepository(t *testing.T) {
 				ArticleID:         articleID2,
 				Slug:              "article_2",
 				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
-				Title:             "title",
+				Title:             "title 2",
 				Body:              "<p>body</p>",
 				AuthoredAt:        time.Now(),
 				Categories:        categories[1:],
@@ -65,6 +65,7 @@ func TestArticleRepository(t *testing.T) {
 	wantArticle := &domain.Article{
 		ArticleID: articleID1,
 		Slug:      "article_1",
+		Title:     "title 1",
 	}
 	if diff := cmp.Diff(wantArticle, gotArticle); diff != "" {
 		t.Errorf("article (-want, +got):\n%s", diff)

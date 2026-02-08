@@ -41,6 +41,7 @@ func (r *ArticleRepository) FindArticleBySlug(ctx context.Context, slug string) 
 	return &domain.Article{
 		ArticleID: article.ArticleID,
 		Slug:      article.Slug,
+		Title:     article.Title,
 	}, nil
 }
 
