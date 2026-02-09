@@ -1,10 +1,10 @@
 # yaml-language-server: $schema=./tests.schema.json
 ---
 cases:
-  "query article":
+  'query article':
     request:
       variables:
-        slug: "abc"
+        slug: 'abc'
       query: |
         query get($slug: String!) {
           article(slug: $slug) {
@@ -17,7 +17,7 @@ cases:
     response:
       data:
         article:
-          slug: "abc"
-          title: "title"
-          body: "<p>body</p>"
-          publishedAt: "2018-02-03T12:34:56+09:00"
+          slug: 'abc'
+          title: 'title'
+          body: '<p>body</p>'
+          publishedAt: '2018-02-03T12:34:56+09:00'

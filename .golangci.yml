@@ -1,4 +1,4 @@
-version: "2"
+version: '2'
 formatters: {}
 issues:
   max-issues-per-linter: 0

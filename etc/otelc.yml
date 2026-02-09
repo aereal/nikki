@@ -3,10 +3,10 @@ receivers:
   otlp:
     protocols:
       grpc:
-        endpoint: "0.0.0.0:4317"
+        endpoint: '0.0.0.0:4317'
 exporters:
   otlp:
-    endpoint: "${env:JAEGER_HOST}"
+    endpoint: '${env:JAEGER_HOST}'
     tls:
       insecure: true
 service:
