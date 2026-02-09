@@ -3,6 +3,10 @@
 package dto
 
 import (
+	"bytes"
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 )
 
@@ -11,4 +15,121 @@ type Article struct {
 	Title       string    `json:"title"`
 	Body        string    `json:"body"`
 	PublishedAt time.Time `json:"publishedAt"`
+}
+
+type ArticleConnection struct {
+	Nodes []*Article `json:"nodes"`
+}
+
+type ArticleOrder struct {
+	Field     ArticleOrderField `json:"field"`
+	Direction OrderDirection    `json:"direction"`
+}
+
+type ArticleOrderField string
+
+const (
+	ArticleOrderFieldPublishedAt ArticleOrderField = "PUBLISHED_AT"
+)
+
+var AllArticleOrderField = []ArticleOrderField{
+	ArticleOrderFieldPublishedAt,
+}
+
+func (e ArticleOrderField) IsValid() bool {
+	switch e {
+	case ArticleOrderFieldPublishedAt:
+		return true
+	}
+	return false
+}
+
+func (e ArticleOrderField) String() string {
+	return string(e)
+}
+
+func (e *ArticleOrderField) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleOrderField(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleOrderField", str)
+	}
+	return nil
+}
+
+func (e ArticleOrderField) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ArticleOrderField) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ArticleOrderField) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type OrderDirection string
+
+const (
+	OrderDirectionAsc  OrderDirection = "ASC"
+	OrderDirectionDesc OrderDirection = "DESC"
+)
+
+var AllOrderDirection = []OrderDirection{
+	OrderDirectionAsc,
+	OrderDirectionDesc,
+}
+
+func (e OrderDirection) IsValid() bool {
+	switch e {
+	case OrderDirectionAsc, OrderDirectionDesc:
+		return true
+	}
+	return false
+}
+
+func (e OrderDirection) String() string {
+	return string(e)
+}
+
+func (e *OrderDirection) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderDirection(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderDirection", str)
+	}
+	return nil
+}
+
+func (e OrderDirection) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *OrderDirection) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e OrderDirection) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }

@@ -28,12 +28,31 @@ export type Article = {
   readonly title: Scalars['String']['output']
 }
 
+export type ArticleConnection = {
+  readonly nodes: ReadonlyArray<Article>
+}
+
+export type ArticleOrder = {
+  readonly direction: OrderDirection
+  readonly field: ArticleOrderField
+}
+
+export type ArticleOrderField = 'PUBLISHED_AT'
+
+export type OrderDirection = 'ASC' | 'DESC'
+
 export type Query = {
   readonly article?: Maybe<Article>
+  readonly articles: ArticleConnection
 }
 
 export type QueryArticleArgs = {
   slug: Scalars['String']['input']
+}
+
+export type QueryArticlesArgs = {
+  first: Scalars['Int']['input']
+  order: ArticleOrder
 }
 
 export type GetPermalinkQueryVariables = Exact<{
