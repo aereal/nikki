@@ -19,6 +19,7 @@ sql:
         output_db_file_name: "db_gen.go"
         output_models_file_name: "models_gen.go"
         output_files_suffix: _gen
+        emit_result_struct_pointers: true
         overrides:
           - column: categories.category_id
             go_type:
@@ -38,7 +39,8 @@ sql:
               type: ArticleRevisionID
           - column: article_revisions.authored_at
             go_type:
-              type: "time.Time"
+              import: "github.com/aereal/nikki/backend/infra/db/dto"
+              type: "DateTime"
           - column: article_publications.article_id
             go_type:
               import: "github.com/aereal/nikki/backend/domain"
@@ -49,7 +51,8 @@ sql:
               type: ArticleRevisionID
           - column: article_publications.published_at
             go_type:
-              type: "time.Time"
+              import: "github.com/aereal/nikki/backend/infra/db/dto"
+              type: "DateTime"
           - column: article_category_mappings.article_id
             go_type:
               import: "github.com/aereal/nikki/backend/domain"

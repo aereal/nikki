@@ -12,8 +12,10 @@ package mock
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	domain "github.com/aereal/nikki/backend/domain"
+	optional "github.com/aereal/optional"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -39,6 +41,85 @@ func NewMockArticleRepository(ctrl *gomock.Controller) *MockArticleRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockArticleRepository) EXPECT() *MockArticleRepositoryMockRecorder {
 	return m.recorder
+}
+
+// FindArticleBySlug mocks base method.
+func (m *MockArticleRepository) FindArticleBySlug(ctx context.Context, slug string) (*domain.Article, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindArticleBySlug", ctx, slug)
+	ret0, _ := ret[0].(*domain.Article)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindArticleBySlug indicates an expected call of FindArticleBySlug.
+func (mr *MockArticleRepositoryMockRecorder) FindArticleBySlug(ctx, slug any) *MockArticleRepositoryFindArticleBySlugCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindArticleBySlug", reflect.TypeOf((*MockArticleRepository)(nil).FindArticleBySlug), ctx, slug)
+	return &MockArticleRepositoryFindArticleBySlugCall{Call: call}
+}
+
+// MockArticleRepositoryFindArticleBySlugCall wrap *gomock.Call
+type MockArticleRepositoryFindArticleBySlugCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockArticleRepositoryFindArticleBySlugCall) Return(arg0 *domain.Article, arg1 error) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockArticleRepositoryFindArticleBySlugCall) Do(f func(context.Context, string) (*domain.Article, error)) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockArticleRepositoryFindArticleBySlugCall) DoAndReturn(f func(context.Context, string) (*domain.Article, error)) *MockArticleRepositoryFindArticleBySlugCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// FindArticles mocks base method.
+func (m *MockArticleRepository) FindArticles(ctx context.Context, first int, direction domain.OrderDirection, cursor optional.Option[time.Time]) ([]*domain.Article, optional.Option[time.Time], error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindArticles", ctx, first, direction, cursor)
+	ret0, _ := ret[0].([]*domain.Article)
+	ret1, _ := ret[1].(optional.Option[time.Time])
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// FindArticles indicates an expected call of FindArticles.
+func (mr *MockArticleRepositoryMockRecorder) FindArticles(ctx, first, direction, cursor any) *MockArticleRepositoryFindArticlesCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindArticles", reflect.TypeOf((*MockArticleRepository)(nil).FindArticles), ctx, first, direction, cursor)
+	return &MockArticleRepositoryFindArticlesCall{Call: call}
+}
+
+// MockArticleRepositoryFindArticlesCall wrap *gomock.Call
+type MockArticleRepositoryFindArticlesCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockArticleRepositoryFindArticlesCall) Return(arg0 []*domain.Article, arg1 optional.Option[time.Time], arg2 error) *MockArticleRepositoryFindArticlesCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockArticleRepositoryFindArticlesCall) Do(f func(context.Context, int, domain.OrderDirection, optional.Option[time.Time]) ([]*domain.Article, optional.Option[time.Time], error)) *MockArticleRepositoryFindArticlesCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockArticleRepositoryFindArticlesCall) DoAndReturn(f func(context.Context, int, domain.OrderDirection, optional.Option[time.Time]) ([]*domain.Article, optional.Option[time.Time], error)) *MockArticleRepositoryFindArticlesCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // ImportArticles mocks base method.

@@ -17,6 +17,8 @@ github.com/aereal/iter v0.8.0 h1:PdsIJIqOCrvz9AFyyCZjPceAACy/xby5PIc5+hXbTig=
 github.com/aereal/iter v0.8.0/go.mod h1:90HlBmkcrMPBtQQoIfQWMlAmYXLuNuoYncn8P042b20=
 github.com/aereal/mt v0.1.0 h1:N2Qgy3YXJGGJq6eXDxf5yqFpKneRc2mDnaPasEGKIdY=
 github.com/aereal/mt v0.1.0/go.mod h1:mlHIhy66voLFMS45bFFAgOyot4qlK/YHzfjBMqAhbUQ=
+github.com/aereal/optional v0.2.0 h1:FsZRjDjLo6gfL/QCNImWLZt/4NJ+dpfiXMQosBNabh0=
+github.com/aereal/optional v0.2.0/go.mod h1:chZ9UTnynG+pkS2reMfpocsYluilA7n5dlNNpmKBN0s=
 github.com/aereal/otelgqlgen v0.11.0 h1:qnmX7XstyKKx9yyWATeCAK/I4TZjjQG+3RVgtSZVXSM=
 github.com/aereal/otelgqlgen v0.11.0/go.mod h1:hvbLmFLAECtNcURBFkJgx21yRCDL2QiEEhZPt1oK0qw=
 github.com/agnivade/levenshtein v1.2.1 h1:EHBY3UOn1gwdy/VbFwgo4cxecRznFk7fKWN1KOX7eoM=
@@ -124,6 +126,8 @@ github.com/riza-io/grpc-go v0.2.0 h1:2HxQKFVE7VuYstcJ8zqpN84VnAoJ4dCL6YFhJewNcHQ
 github.com/riza-io/grpc-go v0.2.0/go.mod h1:2bDvR9KkKC3KhtlSHfR3dAXjUMT86kg4UfWFyVGWqi8=
 github.com/rogpeppe/go-internal v1.14.1 h1:UQB4HGPB6osV0SQTLymcB4TgvyWu6ZyliaW0tI/otEQ=
 github.com/rogpeppe/go-internal v1.14.1/go.mod h1:MaRKkUm5W0goXpeCfT7UZI6fk/L7L7so1lCWt35ZSgc=
+github.com/rs/cors v1.11.1 h1:eU3gRzXLRK57F5rKMGMZURNdIG4EoAmX8k94r9wXWHA=
+github.com/rs/cors v1.11.1/go.mod h1:XyqrcTp5zjWr1wsJ8PIRZssZ8b/WMcMf71DJnit4EMU=
 github.com/rs/xid v1.6.0 h1:fV591PaemRlL6JfRxGDEPl69wICngIQ3shQtzfy2gxU=
 github.com/rs/xid v1.6.0/go.mod h1:7XoLgs4eV+QndskICGsho+ADou8ySMSjJKDIan90Nz0=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=

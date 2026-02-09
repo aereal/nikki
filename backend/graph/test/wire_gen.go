@@ -7,17 +7,20 @@
 package test
 
 import (
+	"github.com/aereal/nikki/backend/domain/mock"
 	"github.com/aereal/nikki/backend/graph"
 	"github.com/aereal/nikki/backend/graph/resolvers"
 	"github.com/aereal/nikki/backend/o11y"
+	"go.uber.org/mock/gomock"
 )
 
 // Injectors from wire.go:
 
-func NewHandler() *Handler {
+func NewHandler(controller *gomock.Controller) *Handler {
 	tracerProvider := o11y.ProvideNoopTracerProvider()
-	resolver := resolvers.ProvideResolver()
+	mockArticleRepository := mock.NewMockArticleRepository(controller)
+	resolver := resolvers.ProvideResolver(mockArticleRepository)
 	handler := graph.ProviveHandler(tracerProvider, resolver)
-	testHandler := provideHandler(handler)
+	testHandler := provideHandler(handler, mockArticleRepository)
 	return testHandler
 }

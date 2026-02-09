@@ -9,6 +9,10 @@ func CategoryByNameNotFound(categoryName string) *NotFoundError[*Category, strin
 	return &NotFoundError[*Category, string]{Key: categoryName}
 }
 
+func ArticleBySlugNotFound(slug string) *NotFoundError[*Article, string] {
+	return &NotFoundError[*Article, string]{Key: slug}
+}
+
 type NotFoundError[Value any, Key comparable] struct {
 	Key Key
 }

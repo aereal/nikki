@@ -9,9 +9,15 @@ cases:
         query get($slug: String!) {
           article(slug: $slug) {
             slug
+            title
+            body
+            publishedAt
           }
         }
     response:
       data:
         article:
           slug: "abc"
+          title: "title"
+          body: "<p>body</p>"
+          publishedAt: "2018-02-03T12:34:56+09:00"

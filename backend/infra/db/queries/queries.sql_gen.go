@@ -8,9 +8,9 @@ package queries
 import (
 	"context"
 	"strings"
-	"time"
 
 	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/dto"
 )
 
 const createArticlePublications = `-- name: CreateArticlePublications :exec
@@ -23,7 +23,7 @@ values
 type CreateArticlePublicationsParams struct {
 	ArticleID         domain.ArticleID
 	ArticleRevisionID domain.ArticleRevisionID
-	PublishedAt       time.Time
+	PublishedAt       dto.DateTime
 }
 
 func (q *Queries) CreateArticlePublications(ctx context.Context, arg CreateArticlePublicationsParams) error {
@@ -49,7 +49,7 @@ type CreateArticleRevisionsParams struct {
 	ArticleID         domain.ArticleID
 	Title             string
 	Body              string
-	AuthoredAt        time.Time
+	AuthoredAt        dto.DateTime
 }
 
 func (q *Queries) CreateArticleRevisions(ctx context.Context, arg CreateArticleRevisionsParams) error {
@@ -80,6 +80,42 @@ func (q *Queries) CreateArticles(ctx context.Context, arg CreateArticlesParams) 
 	return err
 }
 
+const findArticleBySlug = `-- name: FindArticleBySlug :one
+select
+  articles.article_id,
+  articles.slug,
+  article_revisions.body,
+  article_revisions.title,
+  article_publications.published_at
+from
+  articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
+where
+  articles.slug = ?
+`
+
+type FindArticleBySlugRow struct {
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
+}
+
+func (q *Queries) FindArticleBySlug(ctx context.Context, slug string) (*FindArticleBySlugRow, error) {
+	row := q.db.QueryRowContext(ctx, findArticleBySlug, slug)
+	var i FindArticleBySlugRow
+	err := row.Scan(
+		&i.ArticleID,
+		&i.Slug,
+		&i.Body,
+		&i.Title,
+		&i.PublishedAt,
+	)
+	return &i, err
+}
+
 const findCategoriesByNames = `-- name: FindCategoriesByNames :many
 select
   category_id, name
@@ -89,7 +125,7 @@ where
   name in (/*SLICE:names*/?)
 `
 
-func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]Category, error) {
+func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]*Category, error) {
 	query := findCategoriesByNames
 	var queryParams []interface{}
 	if len(names) > 0 {
@@ -105,13 +141,243 @@ func (q *Queries) FindCategoriesByNames(ctx context.Context, names []string) ([]
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Category
+	var items []*Category
 	for rows.Next() {
 		var i Category
 		if err := rows.Scan(&i.CategoryID, &i.Name); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findEarlyArticles = `-- name: FindEarlyArticles :many
+select
+  articles.article_id,
+  articles.slug,
+  article_revisions.body,
+  article_revisions.title,
+  article_publications.published_at
+from
+  articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
+order by
+  article_publications.published_at asc
+limit
+  ?1
+`
+
+type FindEarlyArticlesRow struct {
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
+}
+
+func (q *Queries) FindEarlyArticles(ctx context.Context, limit int64) ([]*FindEarlyArticlesRow, error) {
+	rows, err := q.db.QueryContext(ctx, findEarlyArticles, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*FindEarlyArticlesRow
+	for rows.Next() {
+		var i FindEarlyArticlesRow
+		if err := rows.Scan(
+			&i.ArticleID,
+			&i.Slug,
+			&i.Body,
+			&i.Title,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findEarlyArticlesBefore = `-- name: FindEarlyArticlesBefore :many
+select
+  articles.article_id,
+  articles.slug,
+  article_revisions.body,
+  article_revisions.title,
+  article_publications.published_at
+from
+  articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
+where
+  article_publications.published_at < ?1
+order by
+  article_publications.published_at asc
+limit
+  ?2
+`
+
+type FindEarlyArticlesBeforeParams struct {
+	Before dto.DateTime
+	Limit  int64
+}
+
+type FindEarlyArticlesBeforeRow struct {
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
+}
+
+func (q *Queries) FindEarlyArticlesBefore(ctx context.Context, arg FindEarlyArticlesBeforeParams) ([]*FindEarlyArticlesBeforeRow, error) {
+	rows, err := q.db.QueryContext(ctx, findEarlyArticlesBefore, arg.Before, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*FindEarlyArticlesBeforeRow
+	for rows.Next() {
+		var i FindEarlyArticlesBeforeRow
+		if err := rows.Scan(
+			&i.ArticleID,
+			&i.Slug,
+			&i.Body,
+			&i.Title,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findLatestArticles = `-- name: FindLatestArticles :many
+select
+  articles.article_id,
+  articles.slug,
+  article_revisions.body,
+  article_revisions.title,
+  article_publications.published_at
+from
+  articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
+order by
+  article_publications.published_at desc
+limit
+  ?1
+`
+
+type FindLatestArticlesRow struct {
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
+}
+
+func (q *Queries) FindLatestArticles(ctx context.Context, limit int64) ([]*FindLatestArticlesRow, error) {
+	rows, err := q.db.QueryContext(ctx, findLatestArticles, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*FindLatestArticlesRow
+	for rows.Next() {
+		var i FindLatestArticlesRow
+		if err := rows.Scan(
+			&i.ArticleID,
+			&i.Slug,
+			&i.Body,
+			&i.Title,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findLatestArticlesAfter = `-- name: FindLatestArticlesAfter :many
+select
+  articles.article_id,
+  articles.slug,
+  article_revisions.body,
+  article_revisions.title,
+  article_publications.published_at
+from
+  articles
+  inner join article_revisions on article_revisions.article_id = articles.article_id
+  inner join article_publications on article_publications.article_id = articles.article_id
+where
+  article_publications.published_at > ?1
+order by
+  article_publications.published_at desc
+limit
+  ?2
+`
+
+type FindLatestArticlesAfterParams struct {
+	After dto.DateTime
+	Limit int64
+}
+
+type FindLatestArticlesAfterRow struct {
+	ArticleID   domain.ArticleID
+	Slug        string
+	Body        string
+	Title       string
+	PublishedAt dto.DateTime
+}
+
+func (q *Queries) FindLatestArticlesAfter(ctx context.Context, arg FindLatestArticlesAfterParams) ([]*FindLatestArticlesAfterRow, error) {
+	rows, err := q.db.QueryContext(ctx, findLatestArticlesAfter, arg.After, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*FindLatestArticlesAfterRow
+	for rows.Next() {
+		var i FindLatestArticlesAfterRow
+		if err := rows.Scan(
+			&i.ArticleID,
+			&i.Slug,
+			&i.Body,
+			&i.Title,
+			&i.PublishedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

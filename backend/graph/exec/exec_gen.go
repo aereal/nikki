@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -46,16 +47,25 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Article struct {
-		Slug func(childComplexity int) int
+		Body        func(childComplexity int) int
+		PublishedAt func(childComplexity int) int
+		Slug        func(childComplexity int) int
+		Title       func(childComplexity int) int
+	}
+
+	ArticleConnection struct {
+		Nodes func(childComplexity int) int
 	}
 
 	Query struct {
-		Article func(childComplexity int, slug string) int
+		Article  func(childComplexity int, slug string) int
+		Articles func(childComplexity int, first int, order dto.ArticleOrder) int
 	}
 }
 
 type QueryResolver interface {
 	Article(ctx context.Context, slug string) (*dto.Article, error)
+	Articles(ctx context.Context, first int, order dto.ArticleOrder) (*dto.ArticleConnection, error)
 }
 
 type executableSchema struct {
@@ -77,12 +87,37 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Article.body":
+		if e.complexity.Article.Body == nil {
+			break
+		}
+
+		return e.complexity.Article.Body(childComplexity), true
+	case "Article.publishedAt":
+		if e.complexity.Article.PublishedAt == nil {
+			break
+		}
+
+		return e.complexity.Article.PublishedAt(childComplexity), true
 	case "Article.slug":
 		if e.complexity.Article.Slug == nil {
 			break
 		}
 
 		return e.complexity.Article.Slug(childComplexity), true
+	case "Article.title":
+		if e.complexity.Article.Title == nil {
+			break
+		}
+
+		return e.complexity.Article.Title(childComplexity), true
+
+	case "ArticleConnection.nodes":
+		if e.complexity.ArticleConnection.Nodes == nil {
+			break
+		}
+
+		return e.complexity.ArticleConnection.Nodes(childComplexity), true
 
 	case "Query.article":
 		if e.complexity.Query.Article == nil {
@@ -95,6 +130,17 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.Query.Article(childComplexity, args["slug"].(string)), true
+	case "Query.articles":
+		if e.complexity.Query.Articles == nil {
+			break
+		}
+
+		args, err := ec.field_Query_articles_args(ctx, rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Articles(childComplexity, args["first"].(int), args["order"].(dto.ArticleOrder)), true
 
 	}
 	return 0, false
@@ -103,7 +149,9 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	opCtx := graphql.GetOperationContext(ctx)
 	ec := executionContext{opCtx, e, 0, 0, make(chan graphql.DeferredResult)}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputArticleOrder,
+	)
 	first := true
 
 	switch opCtx.Operation.Operation {
@@ -185,12 +233,36 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../../schema.gql", Input: `type Query {
+	{Name: "../../../schema.gql", Input: `scalar DateTime
+
+enum OrderDirection {
+  ASC
+  DESC
+}
+
+enum ArticleOrderField {
+  PUBLISHED_AT
+}
+
+type Query {
   article(slug: String!): Article
+  articles(first: Int!, order: ArticleOrder!): ArticleConnection!
+}
+
+input ArticleOrder {
+  field: ArticleOrderField!
+  direction: OrderDirection!
 }
 
 type Article {
   slug: String!
+  title: String!
+  body: String!
+  publishedAt: DateTime!
+}
+
+type ArticleConnection {
+  nodes: [Article!]!
 }
 `, BuiltIn: false},
 }
@@ -219,6 +291,22 @@ func (ec *executionContext) field_Query_article_args(ctx context.Context, rawArg
 		return nil, err
 	}
 	args["slug"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_articles_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "first", ec.unmarshalNInt2int)
+	if err != nil {
+		return nil, err
+	}
+	args["first"] = arg0
+	arg1, err := graphql.ProcessArgField(ctx, rawArgs, "order", ec.unmarshalNArticleOrder2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleOrder)
+	if err != nil {
+		return nil, err
+	}
+	args["order"] = arg1
 	return args, nil
 }
 
@@ -303,6 +391,132 @@ func (ec *executionContext) fieldContext_Article_slug(_ context.Context, field g
 	return fc, nil
 }
 
+func (ec *executionContext) _Article_title(ctx context.Context, field graphql.CollectedField, obj *dto.Article) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Article_title,
+		func(ctx context.Context) (any, error) {
+			return obj.Title, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Article_title(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Article",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Article_body(ctx context.Context, field graphql.CollectedField, obj *dto.Article) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Article_body,
+		func(ctx context.Context) (any, error) {
+			return obj.Body, nil
+		},
+		nil,
+		ec.marshalNString2string,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Article_body(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Article",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Article_publishedAt(ctx context.Context, field graphql.CollectedField, obj *dto.Article) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Article_publishedAt,
+		func(ctx context.Context) (any, error) {
+			return obj.PublishedAt, nil
+		},
+		nil,
+		ec.marshalNDateTime2timeᚐTime,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Article_publishedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Article",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type DateTime does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ArticleConnection_nodes(ctx context.Context, field graphql.CollectedField, obj *dto.ArticleConnection) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_ArticleConnection_nodes,
+		func(ctx context.Context) (any, error) {
+			return obj.Nodes, nil
+		},
+		nil,
+		ec.marshalNArticle2ᚕᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleᚄ,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_ArticleConnection_nodes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ArticleConnection",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slug":
+				return ec.fieldContext_Article_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Article_title(ctx, field)
+			case "body":
+				return ec.fieldContext_Article_body(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Article_publishedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Article", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_article(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	return graphql.ResolveField(
 		ctx,
@@ -330,6 +544,12 @@ func (ec *executionContext) fieldContext_Query_article(ctx context.Context, fiel
 			switch field.Name {
 			case "slug":
 				return ec.fieldContext_Article_slug(ctx, field)
+			case "title":
+				return ec.fieldContext_Article_title(ctx, field)
+			case "body":
+				return ec.fieldContext_Article_body(ctx, field)
+			case "publishedAt":
+				return ec.fieldContext_Article_publishedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Article", field.Name)
 		},
@@ -342,6 +562,51 @@ func (ec *executionContext) fieldContext_Query_article(ctx context.Context, fiel
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_article_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_articles(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		ec.fieldContext_Query_articles,
+		func(ctx context.Context) (any, error) {
+			fc := graphql.GetFieldContext(ctx)
+			return ec.resolvers.Query().Articles(ctx, fc.Args["first"].(int), fc.Args["order"].(dto.ArticleOrder))
+		},
+		nil,
+		ec.marshalNArticleConnection2ᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleConnection,
+		true,
+		true,
+	)
+}
+
+func (ec *executionContext) fieldContext_Query_articles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "nodes":
+				return ec.fieldContext_ArticleConnection_nodes(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ArticleConnection", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_articles_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -1902,6 +2167,40 @@ func (ec *executionContext) fieldContext___Type_isOneOf(_ context.Context, field
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputArticleOrder(ctx context.Context, obj any) (dto.ArticleOrder, error) {
+	var it dto.ArticleOrder
+	asMap := map[string]any{}
+	for k, v := range obj.(map[string]any) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"field", "direction"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "field":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("field"))
+			data, err := ec.unmarshalNArticleOrderField2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleOrderField(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Field = data
+		case "direction":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("direction"))
+			data, err := ec.unmarshalNOrderDirection2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐOrderDirection(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Direction = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -1923,6 +2222,60 @@ func (ec *executionContext) _Article(ctx context.Context, sel ast.SelectionSet, 
 			out.Values[i] = graphql.MarshalString("Article")
 		case "slug":
 			out.Values[i] = ec._Article_slug(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "title":
+			out.Values[i] = ec._Article_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "body":
+			out.Values[i] = ec._Article_body(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "publishedAt":
+			out.Values[i] = ec._Article_publishedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var articleConnectionImplementors = []string{"ArticleConnection"}
+
+func (ec *executionContext) _ArticleConnection(ctx context.Context, sel ast.SelectionSet, obj *dto.ArticleConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, articleConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ArticleConnection")
+		case "nodes":
+			out.Values[i] = ec._ArticleConnection_nodes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -1978,6 +2331,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_article(ctx, field)
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "articles":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_articles(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
 				return res
 			}
 
@@ -2353,6 +2728,89 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) marshalNArticle2ᚕᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleᚄ(ctx context.Context, sel ast.SelectionSet, v []*dto.Article) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNArticle2ᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticle(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNArticle2ᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticle(ctx context.Context, sel ast.SelectionSet, v *dto.Article) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Article(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNArticleConnection2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleConnection(ctx context.Context, sel ast.SelectionSet, v dto.ArticleConnection) graphql.Marshaler {
+	return ec._ArticleConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNArticleConnection2ᚖgithubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleConnection(ctx context.Context, sel ast.SelectionSet, v *dto.ArticleConnection) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ArticleConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNArticleOrder2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleOrder(ctx context.Context, v any) (dto.ArticleOrder, error) {
+	res, err := ec.unmarshalInputArticleOrder(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNArticleOrderField2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleOrderField(ctx context.Context, v any) (dto.ArticleOrderField, error) {
+	var res dto.ArticleOrderField
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNArticleOrderField2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐArticleOrderField(ctx context.Context, sel ast.SelectionSet, v dto.ArticleOrderField) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v any) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2367,6 +2825,48 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNDateTime2timeᚐTime(ctx context.Context, v any) (time.Time, error) {
+	res, err := dto.UnmarshalDateTime(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNDateTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	_ = sel
+	res := dto.MarshalDateTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	_ = sel
+	res := graphql.MarshalInt(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			graphql.AddErrorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNOrderDirection2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐOrderDirection(ctx context.Context, v any) (dto.OrderDirection, error) {
+	var res dto.OrderDirection
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNOrderDirection2githubᚗcomᚋaerealᚋnikkiᚋbackendᚋgraphᚋdtoᚐOrderDirection(ctx context.Context, sel ast.SelectionSet, v dto.OrderDirection) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v any) (string, error) {
