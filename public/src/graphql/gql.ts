@@ -15,10 +15,13 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  */
 type Documents = {
   '\n  query GetPermalink($slug: String!) {\n    article(slug: $slug) {\n      slug\n      title\n      body\n      publishedAt\n    }\n  }\n': typeof types.GetPermalinkDocument
+  '\n  query ListArticles($first: Int!) {\n    articles(first: $first, order: { direction: DESC, field: PUBLISHED_AT }) {\n      nodes {\n        title\n        slug\n      }\n    }\n  }\n': typeof types.ListArticlesDocument
 }
 const documents: Documents = {
   '\n  query GetPermalink($slug: String!) {\n    article(slug: $slug) {\n      slug\n      title\n      body\n      publishedAt\n    }\n  }\n':
     types.GetPermalinkDocument,
+  '\n  query ListArticles($first: Int!) {\n    articles(first: $first, order: { direction: DESC, field: PUBLISHED_AT }) {\n      nodes {\n        title\n        slug\n      }\n    }\n  }\n':
+    types.ListArticlesDocument,
 }
 
 /**
@@ -41,6 +44,12 @@ export function graphql(source: string): unknown
 export function graphql(
   source: '\n  query GetPermalink($slug: String!) {\n    article(slug: $slug) {\n      slug\n      title\n      body\n      publishedAt\n    }\n  }\n',
 ): (typeof documents)['\n  query GetPermalink($slug: String!) {\n    article(slug: $slug) {\n      slug\n      title\n      body\n      publishedAt\n    }\n  }\n']
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query ListArticles($first: Int!) {\n    articles(first: $first, order: { direction: DESC, field: PUBLISHED_AT }) {\n      nodes {\n        title\n        slug\n      }\n    }\n  }\n',
+): (typeof documents)['\n  query ListArticles($first: Int!) {\n    articles(first: $first, order: { direction: DESC, field: PUBLISHED_AT }) {\n      nodes {\n        title\n        slug\n      }\n    }\n  }\n']
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {}

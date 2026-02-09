@@ -68,6 +68,16 @@ export type GetPermalinkQuery = {
   } | null
 }
 
+export type ListArticlesQueryVariables = Exact<{
+  first: Scalars['Int']['input']
+}>
+
+export type ListArticlesQuery = {
+  readonly articles: {
+    readonly nodes: ReadonlyArray<{ readonly title: string; readonly slug: string }>
+  }
+}
+
 export const GetPermalinkDocument = {
   kind: 'Document',
   definitions: [
@@ -113,3 +123,74 @@ export const GetPermalinkDocument = {
     },
   ],
 } as unknown as DocumentNode<GetPermalinkQuery, GetPermalinkQueryVariables>
+export const ListArticlesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ListArticles' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'first' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'articles' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'first' },
+                value: { kind: 'Variable', name: { kind: 'Name', value: 'first' } },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'order' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'direction' },
+                      value: { kind: 'EnumValue', value: 'DESC' },
+                    },
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'field' },
+                      value: { kind: 'EnumValue', value: 'PUBLISHED_AT' },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'nodes' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'title' } },
+                      { kind: 'Field', name: { kind: 'Name', value: 'slug' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<ListArticlesQuery, ListArticlesQueryVariables>
