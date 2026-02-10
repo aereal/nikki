@@ -9,7 +9,7 @@ import (
 
 func ConvertMTEntry(articleID domain.ArticleID, articleRevisionID domain.ArticleRevisionID, entry *mt.Entry, name2category map[string]*domain.Category) (*domain.ArticleToImport, error) {
 	errs := make([]error, 0)
-	if validateErrs := validateEntry(entry); validateErrs != nil {
+	if validateErrs := validateEntry(entry); len(validateErrs) > 0 {
 		errs = append(errs, validateErrs...)
 	}
 
