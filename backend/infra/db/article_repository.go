@@ -169,11 +169,17 @@ func (r *ArticleRepository) createRevisions(ctx context.Context, articles []*dom
 }
 
 func (r *ArticleRepository) createArticlePublications(ctx context.Context, articles []*domain.ArticleToImport) error {
-	params := make(queries.BulkCreateArticlePublicationsParams, len(articles))
-	for i, a := range articles {
-		params[i].ArticleID = a.ArticleID
-		params[i].ArticleRevisionID = a.ArticleRevisionID
-		params[i].PublishedAt = dto.DateTime(a.AuthoredAt)
+	params := make(queries.BulkCreateArticlePublicationsParams, 0, len(articles))
+	for _, a := range articles {
+		if a.Status != domain.ArticleStatusPublic {
+			continue
+		}
+		p := queries.CreateArticlePublicationsParams{
+			ArticleID:         a.ArticleID,
+			ArticleRevisionID: a.ArticleRevisionID,
+			PublishedAt:       dto.DateTime(a.AuthoredAt),
+		}
+		params = append(params, p)
 	}
 	return queries.New(r.execCtx).BulkCreateArticlePublications(ctx, params)
 }

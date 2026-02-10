@@ -32,6 +32,7 @@ func TestArticleRepository_revise(t *testing.T) {
 				Title:             "title 1",
 				Body:              "<p>body 1</p>",
 				AuthoredAt:        authoredAt,
+				Status:            domain.ArticleStatusPublic,
 			},
 		},
 	}
@@ -101,8 +102,10 @@ func TestArticleRepository(t *testing.T) { //nolint:tparallel
 	}
 	articleID1 := articleRepo.ArticleIDGenerator.GenerateID()
 	articleID2 := articleRepo.ArticleIDGenerator.GenerateID()
+	articleID3 := articleRepo.ArticleIDGenerator.GenerateID()
 	authoredAt1 := time.Now()
 	authoredAt2 := authoredAt1.Add(time.Second * 5 * -1)
+	authoredAt3 := authoredAt2.Add(time.Second * 5 * -1)
 	aggregate := &domain.ImportArticlesAggregate{
 		Articles: []*domain.ArticleToImport{
 			{
@@ -113,6 +116,7 @@ func TestArticleRepository(t *testing.T) { //nolint:tparallel
 				Body:              "<p>body 1</p>",
 				AuthoredAt:        authoredAt1,
 				Categories:        categories,
+				Status:            domain.ArticleStatusPublic,
 			},
 			{
 				ArticleID:         articleID2,
@@ -122,6 +126,17 @@ func TestArticleRepository(t *testing.T) { //nolint:tparallel
 				Body:              "<p>body 2</p>",
 				AuthoredAt:        authoredAt2,
 				Categories:        categories[1:],
+				Status:            domain.ArticleStatusPublic,
+			},
+			{
+				ArticleID:         articleID3,
+				Slug:              "article_3",
+				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
+				Title:             "title 3",
+				Body:              "<p>draft</p>",
+				AuthoredAt:        authoredAt3,
+				Categories:        categories[1:],
+				Status:            domain.ArticleStatusDraft,
 			},
 		},
 	}
