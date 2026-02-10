@@ -50,11 +50,14 @@ select
   article_revisions.title,
   article_publications.published_at
 from
-  articles
-  inner join article_revisions on article_revisions.article_id = articles.article_id
+  article_revisions
+  inner join articles on articles.article_id = article_revisions.article_id
+  and articles.slug = ?
   inner join article_publications on article_publications.article_id = articles.article_id
-where
-  articles.slug = ?;
+order by
+  article_revisions.authored_at desc
+limit
+  1;
 
 -- name: FindLatestArticles :many
 select
@@ -66,6 +69,14 @@ select
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  and article_revisions.authored_at = (
+    select
+      max(ar.authored_at)
+    from
+      article_revisions ar
+    where
+      ar.article_id = articles.article_id
+  )
   inner join article_publications on article_publications.article_id = articles.article_id
 order by
   article_publications.published_at desc
@@ -82,6 +93,14 @@ select
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  and article_revisions.authored_at = (
+    select
+      max(ar.authored_at)
+    from
+      article_revisions ar
+    where
+      ar.article_id = articles.article_id
+  )
   inner join article_publications on article_publications.article_id = articles.article_id
 order by
   article_publications.published_at asc
@@ -98,6 +117,14 @@ select
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  and article_revisions.authored_at = (
+    select
+      max(ar.authored_at)
+    from
+      article_revisions ar
+    where
+      ar.article_id = articles.article_id
+  )
   inner join article_publications on article_publications.article_id = articles.article_id
 where
   article_publications.published_at > sqlc.arg ('after')
@@ -116,6 +143,14 @@ select
 from
   articles
   inner join article_revisions on article_revisions.article_id = articles.article_id
+  and article_revisions.authored_at = (
+    select
+      max(ar.authored_at)
+    from
+      article_revisions ar
+    where
+      ar.article_id = articles.article_id
+  )
   inner join article_publications on article_publications.article_id = articles.article_id
 where
   article_publications.published_at < sqlc.arg ('before')
