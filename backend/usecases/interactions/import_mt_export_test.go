@@ -31,6 +31,7 @@ func TestImportMTExport_ImportMTExport(t *testing.T) {
 
 				root.ArticleIDGenerator.EXPECT().GenerateID().Return("article-1").Times(1)
 				root.ArticleIDGenerator.EXPECT().GenerateID().Return("article-2").Times(1)
+				root.ArticleIDGenerator.EXPECT().GenerateID().Return("article-3").Times(1)
 				root.CategoryRepository.EXPECT().
 					ImportCategories(gomock.Any(), gomock.InAnyOrder([]string{"News", "Product"})).
 					Return(nil).
@@ -44,6 +45,7 @@ func TestImportMTExport_ImportMTExport(t *testing.T) {
 					Times(1)
 				root.ArticleRevisionIDGenerator.EXPECT().GenerateID().Return("revision-1").Times(1)
 				root.ArticleRevisionIDGenerator.EXPECT().GenerateID().Return("revision-2").Times(1)
+				root.ArticleRevisionIDGenerator.EXPECT().GenerateID().Return("revision-3").Times(1)
 				root.ArticleRepository.EXPECT().
 					ImportArticles(gomock.Any(), gomock.Any()).
 					DoAndReturn(func(_ context.Context, gotAggregate *domain.ImportArticlesAggregate) error {
@@ -95,6 +97,7 @@ var (
 					{CategoryID: "cat-1", Name: "News"},
 					{CategoryID: "cat-2", Name: "Product"},
 				},
+				Status: domain.ArticleStatusPublic,
 			},
 			{
 				ArticleID:         "article-2",
@@ -107,6 +110,19 @@ var (
 					{CategoryID: "cat-1", Name: "News"},
 					{CategoryID: "cat-2", Name: "Product"},
 				},
+				Status: domain.ArticleStatusPublic,
+			},
+			{
+				ArticleID:         "article-3",
+				Slug:              "draft-1",
+				ArticleRevisionID: "revision-3",
+				Title:             "3件目だけど下書き",
+				Body:              "下書きだよ\n",
+				AuthoredAt:        wantAuthoredTime,
+				Categories: []*domain.Category{
+					{CategoryID: "cat-1", Name: "News"},
+				},
+				Status: domain.ArticleStatusDraft,
 			},
 		},
 	}
