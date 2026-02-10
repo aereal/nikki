@@ -62,3 +62,20 @@ DATE: 01/31/2002 04:23:01 PM
 この記事に対する最初のコメントを示します。
 -----
 --------
+AUTHOR: poepoe
+TITLE: 3件目だけど下書き
+BASENAME: draft-1
+STATUS: draft
+ALLOW COMMENTS: 1
+ALLOW PINGS: 1
+CONVERT BREAKS: richtext
+PRIMARY CATEGORY: News
+CATEGORY: News
+DATE: 08/08/2007 03:00:00 PM
+TAGS: "Movable Type",foo,bar
+CF50_BASENAME: textdata
+-----
+BODY:
+下書きだよ
+-----
+--------

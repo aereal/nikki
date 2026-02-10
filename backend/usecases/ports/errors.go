@@ -12,24 +12,10 @@ import (
 	"github.com/aereal/nikki/backend/domain"
 )
 
-func asConvertMTEntryError(articleID domain.ArticleID, articleRevisionID domain.ArticleRevisionID, errs ...error) *ConvertMTEntryError {
-	if len(errs) == 0 {
-		return nil
-	}
-	accum := make([]error, 0, len(errs)+1)
-	accum = append(accum, errs...)
-	return &ConvertMTEntryError{
-		ArticleID:         articleID,
-		ArticleRevisionID: articleRevisionID,
-		errs:              accum,
-	}
-}
-
 type ConvertMTEntryError struct {
 	ArticleID         domain.ArticleID
 	ArticleRevisionID domain.ArticleRevisionID
-
-	errs []error
+	Errs              []error
 }
 
 var _ error = (*ConvertMTEntryError)(nil)
@@ -38,7 +24,7 @@ func (e *ConvertMTEntryError) Error() string {
 	buf := new(bytes.Buffer)
 	buf.WriteString("failed to convert MT entry: ")
 	var seen bool
-	for _, err := range e.errs {
+	for _, err := range e.Errs {
 		if seen {
 			buf.WriteString("; ")
 		}
@@ -52,51 +38,26 @@ func (e *ConvertMTEntryError) Unwrap() []error {
 	if e == nil {
 		return nil
 	}
-	return slices.Clone(e.errs)
+	return slices.Clone(e.Errs)
 }
 
-func WrapInvalidMTExportEntryError(errs ...error) *InvalidMTExportEntryError {
-	return &InvalidMTExportEntryError{errs: errs}
-}
-
-type InvalidMTExportEntryError struct {
-	errs []error
-}
-
-var _ error = (*InvalidMTExportEntryError)(nil)
-
-func (e *InvalidMTExportEntryError) Error() string {
-	buf := new(bytes.Buffer)
-	buf.WriteString("invalid MT export entry: ")
-	var written bool
-	for _, err := range e.errs {
-		if written {
-			buf.WriteString(", ")
-		}
-		buf.WriteString(err.Error())
-		written = true
-	}
-	return buf.String()
-}
-
-func (e *InvalidMTExportEntryError) Unwrap() []error {
-	return e.errs
-}
-
-func (e *InvalidMTExportEntryError) Is(other error) bool {
-	rhs := new(InvalidMTExportEntryError)
+func (e *ConvertMTEntryError) Is(other error) bool {
+	rhs := new(ConvertMTEntryError)
 	if !errors.As(other, &rhs) {
 		return false
 	}
-	if len(e.errs) != len(rhs.errs) {
+	if len(e.Errs) != len(rhs.Errs) {
+		return false
+	}
+	if e.ArticleID != rhs.ArticleID || e.ArticleRevisionID != rhs.ArticleRevisionID {
 		return false
 	}
 	leftErrs := slices.SortedFunc(
-		slices.Values(e.errs),
+		slices.Values(e.Errs),
 		cmpErr,
 	)
 	rightErrs := slices.SortedFunc(
-		slices.Values(rhs.errs),
+		slices.Values(rhs.Errs),
 		cmpErr,
 	)
 	for a, b := range seq.Zip(slices.Values(leftErrs), slices.Values(rightErrs)) {
@@ -123,6 +84,24 @@ func (e *UnsupportedConvertBreaksError) Is(other error) bool {
 		return false
 	}
 	return e.Value == rhs.Value
+}
+
+type UnsupportedStatusError struct {
+	Status mt.Status
+}
+
+var _ error = (*UnsupportedStatusError)(nil)
+
+func (e *UnsupportedStatusError) Error() string {
+	return fmt.Sprintf("unsupported status: %s", e.Status)
+}
+
+func (e *UnsupportedStatusError) Is(other error) bool {
+	rhs := new(UnsupportedStatusError)
+	if !errors.As(other, &rhs) {
+		return false
+	}
+	return e.Status == rhs.Status
 }
 
 var ErrEmptyBasename EmptyBasenameError

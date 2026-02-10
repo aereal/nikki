@@ -10,4 +10,13 @@ type ArticleToImport struct {
 	Body              string
 	AuthoredAt        time.Time
 	Categories        []*Category
+	Status            ArticleStatus
 }
+
+type ArticleStatus int
+
+const (
+	ArticleStatusInvalid ArticleStatus = iota
+	ArticleStatusDraft
+	ArticleStatusPublic
+)

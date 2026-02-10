@@ -34,6 +34,7 @@ func TestConvertMTEntry(t *testing.T) {
 				Title:           "title",
 				Body:            "<p>body</p>",
 				ExtendedBody:    "<p>extended</p>",
+				Status:          mt.StatusPublish,
 			},
 			mapping: map[string]*domain.Category{
 				"a": {CategoryID: "1", Name: "a"},
@@ -52,6 +53,7 @@ func TestConvertMTEntry(t *testing.T) {
 					{CategoryID: "2", Name: "b"},
 					{CategoryID: "3", Name: "c"},
 				},
+				Status: domain.ArticleStatusPublic,
 			},
 			wantErr: nil,
 		},
@@ -62,6 +64,7 @@ func TestConvertMTEntry(t *testing.T) {
 				Basename:        "basename",
 				Date:            time.Now(),
 				PrimaryCategory: "cat-a",
+				Status:          mt.StatusDraft,
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
@@ -73,30 +76,47 @@ func TestConvertMTEntry(t *testing.T) {
 				ConvertBreaks: mt.ConvertBreaksMarkdownWithSmartyPants,
 				Basename:      "basename",
 				Date:          time.Now(),
+				Status:        mt.StatusDraft,
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(&ports.UnsupportedConvertBreaksError{Value: mt.ConvertBreaksMarkdownWithSmartyPants}),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs: []error{
+					&ports.UnsupportedConvertBreaksError{Value: mt.ConvertBreaksMarkdownWithSmartyPants},
+				},
+			},
 		},
 		{
 			name: "empty basename",
 			entry: &mt.Entry{
 				ConvertBreaks: mt.ConvertBreaksNone,
 				Date:          time.Now(),
+				Status:        mt.StatusDraft,
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(ports.ErrEmptyBasename),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs:              []error{ports.ErrEmptyBasename},
+			},
 		},
 		{
 			name: "empty date",
 			entry: &mt.Entry{
 				Basename:      "basename",
 				ConvertBreaks: mt.ConvertBreaksNone,
+				Status:        mt.StatusDraft,
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(ports.ErrEmptyDate),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs:              []error{ports.ErrEmptyDate},
+			},
 		},
 	}
 	for _, tc := range testCases {
