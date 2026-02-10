@@ -8,35 +8,41 @@ import (
 )
 
 func ConvertMTEntry(articleID domain.ArticleID, articleRevisionID domain.ArticleRevisionID, entry *mt.Entry, name2category map[string]*domain.Category) (*domain.ArticleToImport, error) {
-	if err := validateEntry(entry); err != nil {
-		return nil, asConvertMTEntryError(articleID, articleRevisionID, err)
+	errs := make([]error, 0)
+	if validateErrs := validateEntry(entry); validateErrs != nil {
+		errs = append(errs, validateErrs...)
 	}
 
-	articleToImport := &domain.ArticleToImport{
-		ArticleID:         articleID,
-		Slug:              entry.Basename,
-		ArticleRevisionID: articleRevisionID,
-		Title:             entry.Title,
-		Body:              entry.Body + entry.ExtendedBody,
-		AuthoredAt:        entry.Date,
-	}
+
+	cats := make([]*domain.Category, 0)
 	categoryNames := CategoryNamesOfMTEntry(entry)
-	errs := make([]error, 0, categoryNames.Len())
 	for _, name := range slices.Sorted(categoryNames.Values()) {
 		cat, ok := name2category[name]
 		if !ok {
 			errs = append(errs, domain.CategoryByNameNotFound(name))
 			continue
 		}
-		articleToImport.Categories = append(articleToImport.Categories, cat)
+		cats = append(cats, cat)
 	}
 	if len(errs) > 0 {
-		return nil, asConvertMTEntryError(articleID, articleRevisionID, errs...)
+		return nil, &ConvertMTEntryError{
+			ArticleID:         articleID,
+			ArticleRevisionID: articleRevisionID,
+			Errs:              errs,
+		}
 	}
-	return articleToImport, nil
+	return &domain.ArticleToImport{
+		ArticleID:         articleID,
+		Slug:              entry.Basename,
+		ArticleRevisionID: articleRevisionID,
+		Title:             entry.Title,
+		Body:              entry.Body + entry.ExtendedBody,
+		AuthoredAt:        entry.Date,
+		Categories:        cats,
+	}, nil
 }
 
-func validateEntry(entry *mt.Entry) *InvalidMTExportEntryError {
+func validateEntry(entry *mt.Entry) []error {
 	errs := make([]error, 0)
 	switch entry.ConvertBreaks {
 	case mt.ConvertBreaksNone, mt.ConvertBreaksRichtext: // supported
@@ -49,9 +55,5 @@ func validateEntry(entry *mt.Entry) *InvalidMTExportEntryError {
 	if entry.Date.IsZero() {
 		errs = append(errs, ErrEmptyDate)
 	}
-
-	if len(errs) > 0 {
-		return &InvalidMTExportEntryError{errs: errs}
-	}
-	return nil
+	return errs
 }

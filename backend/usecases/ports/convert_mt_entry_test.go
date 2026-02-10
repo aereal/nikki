@@ -76,7 +76,13 @@ func TestConvertMTEntry(t *testing.T) {
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(&ports.UnsupportedConvertBreaksError{Value: mt.ConvertBreaksMarkdownWithSmartyPants}),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs: []error{
+					&ports.UnsupportedConvertBreaksError{Value: mt.ConvertBreaksMarkdownWithSmartyPants},
+				},
+			},
 		},
 		{
 			name: "empty basename",
@@ -86,7 +92,11 @@ func TestConvertMTEntry(t *testing.T) {
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(ports.ErrEmptyBasename),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs:              []error{ports.ErrEmptyBasename},
+			},
 		},
 		{
 			name: "empty date",
@@ -96,7 +106,11 @@ func TestConvertMTEntry(t *testing.T) {
 			},
 			mapping:   map[string]*domain.Category{},
 			wantValue: nil,
-			wantErr:   ports.WrapInvalidMTExportEntryError(ports.ErrEmptyDate),
+			wantErr: &ports.ConvertMTEntryError{
+				ArticleID:         "100",
+				ArticleRevisionID: "1",
+				Errs:              []error{ports.ErrEmptyDate},
+			},
 		},
 	}
 	for _, tc := range testCases {
