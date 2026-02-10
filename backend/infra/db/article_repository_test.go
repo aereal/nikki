@@ -6,13 +6,80 @@ import (
 	"time"
 
 	"github.com/aereal/nikki/backend/domain"
+	"github.com/aereal/nikki/backend/infra/db/dto"
 	"github.com/aereal/nikki/backend/infra/db/test"
 	"github.com/aereal/optional"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
 
-func TestArticleRepository(t *testing.T) {
+func TestArticleRepository_revise(t *testing.T) {
+	t.Parallel()
+
+	articleRepo, err := test.NewTestArticleRepository(t.Context())
+	if err != nil {
+		t.Fatal(err)
+	}
+	articleID := articleRepo.ArticleIDGenerator.GenerateID()
+	slug := "article_1"
+	authoredAt := time.Now()
+	aggregate := &domain.ImportArticlesAggregate{
+		Articles: []*domain.ArticleToImport{
+			{
+				ArticleID:         articleID,
+				ArticleRevisionID: articleRepo.ArticleRevisionIDGenerator.GenerateID(),
+				Slug:              slug,
+				Title:             "title 1",
+				Body:              "<p>body 1</p>",
+				AuthoredAt:        authoredAt,
+			},
+		},
+	}
+	if err := articleRepo.ImportArticles(t.Context(), aggregate); err != nil {
+		t.Fatal(err)
+	}
+
+	revisedAt := authoredAt.Add(time.Minute)
+	nextRevID := articleRepo.ArticleRevisionIDGenerator.GenerateID()
+	param := test.ReviseArticleParam{
+		ArticleID:         articleID,
+		ArticleRevisionID: nextRevID,
+		Title:             "revised title",
+		Body:              `<p>revised body</p>`,
+		AuthoredAt:        dto.DateTime(revisedAt),
+	}
+	if err := articleRepo.Revise(t.Context(), []test.ReviseArticleParam{param}); err != nil {
+		t.Fatal(err)
+	}
+
+	want := &domain.Article{
+		ArticleID:   articleID,
+		Slug:        slug,
+		Title:       "revised title",
+		Body:        `<p>revised body</p>`,
+		PublishedAt: authoredAt.Truncate(time.Millisecond),
+	}
+	{
+		got, err := articleRepo.FindArticleBySlug(t.Context(), slug)
+		if err != nil {
+			t.Error(err)
+		}
+		if diff := cmp.Diff(want, got); diff != "" {
+			t.Errorf("(-want, +got):\n%s", diff)
+		}
+	}
+	{
+		got, _, err := articleRepo.FindArticles(t.Context(), 1, domain.OrderDirectionAsc, optional.None[time.Time]())
+		if err != nil {
+			t.Error(err)
+		}
+		if diff := cmp.Diff([]*domain.Article{want}, got); diff != "" {
+			t.Errorf("(-want, +got):\n%s", diff)
+		}
+	}
+}
+
+func TestArticleRepository(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 
 	categoryRepo, err := test.NewTestCategoryRepository(t.Context())
