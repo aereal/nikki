@@ -13,6 +13,10 @@ func ConvertMTEntry(articleID domain.ArticleID, articleRevisionID domain.Article
 		errs = append(errs, validateErrs...)
 	}
 
+	status, err := statusOf(entry.Status)
+	if err != nil {
+		errs = append(errs, err)
+	}
 
 	cats := make([]*domain.Category, 0)
 	categoryNames := CategoryNamesOfMTEntry(entry)
@@ -39,6 +43,7 @@ func ConvertMTEntry(articleID domain.ArticleID, articleRevisionID domain.Article
 		Body:              entry.Body + entry.ExtendedBody,
 		AuthoredAt:        entry.Date,
 		Categories:        cats,
+		Status:            status,
 	}, nil
 }
 
@@ -56,4 +61,15 @@ func validateEntry(entry *mt.Entry) []error {
 		errs = append(errs, ErrEmptyDate)
 	}
 	return errs
+}
+
+func statusOf(status mt.Status) (domain.ArticleStatus, error) {
+	switch status {
+	case mt.StatusDraft:
+		return domain.ArticleStatusDraft, nil
+	case mt.StatusPublish:
+		return domain.ArticleStatusPublic, nil
+	default:
+		return domain.ArticleStatusInvalid, &UnsupportedStatusError{Status: status}
+	}
 }

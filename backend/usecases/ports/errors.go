@@ -86,6 +86,24 @@ func (e *UnsupportedConvertBreaksError) Is(other error) bool {
 	return e.Value == rhs.Value
 }
 
+type UnsupportedStatusError struct {
+	Status mt.Status
+}
+
+var _ error = (*UnsupportedStatusError)(nil)
+
+func (e *UnsupportedStatusError) Error() string {
+	return fmt.Sprintf("unsupported status: %s", e.Status)
+}
+
+func (e *UnsupportedStatusError) Is(other error) bool {
+	rhs := new(UnsupportedStatusError)
+	if !errors.As(other, &rhs) {
+		return false
+	}
+	return e.Status == rhs.Status
+}
+
 var ErrEmptyBasename EmptyBasenameError
 
 type EmptyBasenameError struct{}
