@@ -6,11 +6,11 @@ coverage:
     - ../public/coverage/clover.xml
 codeToTestRatio:
   code:
-    - "../public/src/**/*.{ts,vue}"
-    - "!../public/src/**/*.test.ts"
-    - "!../public/src/**/*.spec.ts"
+    - '../public/src/**/*.{ts,vue}'
+    - '!../public/src/**/*.test.ts'
+    - '!../public/src/**/*.spec.ts'
   test:
-    - "../public/src/**/*.{test,spec}.ts"
+    - '../public/src/**/*.{test,spec}.ts'
 testExecutionTime:
   if: true
 diff:

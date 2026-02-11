@@ -8,4 +8,5 @@
   },
   "go.lintTool": "golangci-lint-v2",
   "go.buildTags": "wireinject",
+  "yaml.format.singleQuote": true,
 }

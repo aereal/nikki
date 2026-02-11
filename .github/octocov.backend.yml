@@ -3,13 +3,13 @@ repository: aereal/nikki/backend
 coverage:
   if: true
   paths:
-    - "../coverage.out"
+    - '../coverage.out'
 codeToTestRatio:
   code:
-    - "../backend/**/*.go"
-    - "!../backend/**/*_test.go"
+    - '../backend/**/*.go'
+    - '!../backend/**/*_test.go'
   test:
-    - "../backend/**/*_test.go"
+    - '../backend/**/*_test.go'
 testExecutionTime:
   if: true
 diff:
